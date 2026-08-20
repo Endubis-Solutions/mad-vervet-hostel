@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us — Mad Vervet Hostel</title>
+  <meta name="description" content="Get in touch with Mad Vervet Hostel. Addis Ababa: Downtown Bole, BL_03_552 St, Hayahulet, +251 923 577 808. Nairobi: Lavington. Email info@madvervet.com.">
+  <meta property="og:title" content="Contact Mad Vervet Hostel">
+  <meta property="og:description" content="Questions, bookings, big plans — email info@madvervet.com or call our Addis Ababa hostel.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://madvervet.com/contact.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Partials load via fetch(): a local dev server is required — they won't load over file:// -->
+</head>
+<body>
+  <div id="site-header"></div>
+  <main id="main">
+    <section class="hero">
+      <h1>Say Hello</h1>
+      <p class="tagline">We Actually Reply</p>
+    </section>
+    <div class="wave-divider wave-divider--ink" aria-hidden="true">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0 60 C360 0 1080 0 1440 60 L1440 60 L0 60 Z" fill="currentColor"/></svg>
+    </div>
+    <section class="section">
+      <div class="container two-col">
+        <div>
+          <h2>Addis Ababa</h2>
+          <address>
+            Downtown Bole, BL_03_552 St, Hayahulet<br>
+            Addis Ababa, Ethiopia<br>
+            Phone: <a href="tel:+251923577808">+251 923 577 808</a><br>
+            Email: <a href="mailto:info@madvervet.com">info@madvervet.com</a>
+          </address>
+          <h2 class="mt-2">Nairobi</h2>
+          <!-- TODO: confirm Nairobi contact details -->
+          <address>
+            Lavington, Nairobi, Kenya<br>
+            Phone: <em>placeholder — to be confirmed</em><br>
+            Email: <em>placeholder — use <a href="mailto:info@madvervet.com">info@madvervet.com</a></em>
+          </address>
+        </div>
+        <div>
+          <h2>Message Us</h2>
+          <form id="contact-form" novalidate>
+            <div class="field">
+              <label for="contact-name">Name</label>
+              <input type="text" id="contact-name" name="name" required autocomplete="name">
+            </div>
+            <div class="field">
+              <label for="contact-email">Email</label>
+              <input type="email" id="contact-email" name="email" required autocomplete="email">
+            </div>
+            <div class="field">
+              <label for="contact-subject">Subject</label>
+              <input type="text" id="contact-subject" name="subject" required>
+            </div>
+            <div class="field">
+              <label for="contact-message">Message</label>
+              <textarea id="contact-message" name="message" required></textarea>
+            </div>
+            <button class="btn" type="submit">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+  <script src="js/nav.js" defer></script>
+  <script src="js/include.js" defer></script>
+  <script src="js/chat-widget.js" defer></script>
+  <script src="js/forms.js" defer></script>
+</body>
+</html>

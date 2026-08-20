@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tours &amp; Adventures — Mad Vervet Hostel</title>
+  <meta name="description" content="Book tours from Mad Vervet Hostel: Lalibela churches, Simien Mountains trek, Omo Valley, Maasai Mara safari, Diani Beach and Lake Nakuru. Example prices in USD.">
+  <meta property="og:title" content="Tours &amp; Adventures — Mad Vervet">
+  <meta property="og:description" content="Ethiopia and Kenya tours run with trusted local partners — safaris, treks and cultural trips from our hostel desks.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://madvervet.com/tours.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Partials load via fetch(): a local dev server is required — they won't load over file:// -->
+</head>
+<body>
+  <div id="site-header"></div>
+  <main id="main">
+    <section class="hero">
+      <h1>Tours &amp; Adventures</h1>
+      <p class="tagline">Beyond the Bar</p>
+      <p class="lede">All prices below are example / placeholder prices in USD. Our front desk pairs you with trusted local operators.</p>
+    </section>
+    <div class="wave-divider wave-divider--ink" aria-hidden="true">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0 60 C360 0 1080 0 1440 60 L1440 60 L0 60 Z" fill="currentColor"/></svg>
+    </div>
+    <section class="section">
+      <div class="container">
+        <div class="card-grid">
+          <article class="card card--pink">
+            <div class="img-placeholder img-placeholder--terra" role="img" aria-label="Placeholder image: Lalibela rock-hewn churches">Image placeholder — Lalibela</div>
+            <h2>Lalibela Rock-Hewn Churches</h2>
+            <p><span class="tag">3 days / 2 nights</span></p>
+            <p><strong>from $180/person</strong> <span class="price-note">(example price)</span></p>
+          </article>
+          <article class="card card--pink">
+            <div class="img-placeholder img-placeholder--ink" role="img" aria-label="Placeholder image: Simien Mountains trek">Image placeholder — Simien Mountains</div>
+            <h2>Simien Mountains Trek</h2>
+            <p><span class="tag">2 days / 1 night</span></p>
+            <p><strong>from $150/person</strong> <span class="price-note">(example price)</span></p>
+          </article>
+          <article class="card card--pink">
+            <div class="img-placeholder img-placeholder--pink" role="img" aria-label="Placeholder image: Omo Valley cultural tour">Image placeholder — Omo Valley</div>
+            <h2>Omo Valley Cultural Tour</h2>
+            <p><span class="tag">4 days / 3 nights</span></p>
+            <p><strong>from $320/person</strong> <span class="price-note">(example price)</span></p>
+          </article>
+          <article class="card card--pink">
+            <div class="img-placeholder img-placeholder--terra" role="img" aria-label="Placeholder image: Maasai Mara safari">Image placeholder — Maasai Mara</div>
+            <h2>Maasai Mara Safari</h2>
+            <p><span class="tag">3 days / 2 nights</span></p>
+            <p><strong>from $350/person</strong> <span class="price-note">(example price)</span></p>
+          </article>
+          <article class="card card--pink">
+            <div class="img-placeholder img-placeholder--pink" role="img" aria-label="Placeholder image: Diani Beach getaway">Image placeholder — Diani Beach</div>
+            <h2>Diani Beach Getaway</h2>
+            <p><span class="tag">3 days / 2 nights</span></p>
+            <p><strong>from $200/person</strong> <span class="price-note">(example price)</span></p>
+          </article>
+          <article class="card card--pink">
+            <div class="img-placeholder img-placeholder--ink" role="img" aria-label="Placeholder image: Lake Nakuru day safari">Image placeholder — Lake Nakuru</div>
+            <h2>Lake Nakuru Day Safari</h2>
+            <p><span class="tag">1 day</span></p>
+            <p><strong>from $90/person</strong> <span class="price-note">(example price)</span></p>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section class="section section--white">
+      <div class="container" style="max-width: 640px;">
+        <div class="section-head">
+          <span class="kicker kicker--pink">Plan It</span>
+          <h2>Tour Inquiry</h2>
+        </div>
+        <form id="tour-inquiry-form" novalidate>
+          <div class="field">
+            <label for="tour-name">Full name</label>
+            <input type="text" id="tour-name" name="name" required autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="tour-email">Email</label>
+            <input type="email" id="tour-email" name="email" required autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="tour-select">Which tour?</label>
+            <select id="tour-select" name="tour" required>
+              <option value="">Choose a tour…</option>
+              <option>Lalibela Rock-Hewn Churches</option>
+              <option>Simien Mountains Trek</option>
+              <option>Omo Valley Cultural Tour</option>
+              <option>Maasai Mara Safari</option>
+              <option>Diani Beach Getaway</option>
+              <option>Lake Nakuru Day Safari</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tour-guests">Number of travellers</label>
+            <input type="number" id="tour-guests" name="guests" min="1" required>
+          </div>
+          <div class="field">
+            <label for="tour-date">Preferred start date</label>
+            <input type="date" id="tour-date" name="date" required>
+          </div>
+          <div class="field">
+            <label for="tour-message">Anything else?</label>
+            <textarea id="tour-message" name="message"></textarea>
+          </div>
+          <button class="btn btn--pink" type="submit">Send Inquiry</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+  <script src="js/nav.js" defer></script>
+  <script src="js/include.js" defer></script>
+  <script src="js/chat-widget.js" defer></script>
+  <script src="js/forms.js" defer></script>
+</body>
+</html>

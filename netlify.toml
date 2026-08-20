@@ -1,0 +1,9 @@
+[build]
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["data/promo-codes.json"]

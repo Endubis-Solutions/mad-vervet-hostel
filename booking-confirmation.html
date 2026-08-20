@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmation — Mad Vervet Hostel</title>
+  <meta name="description" content="Your Mad Vervet Hostel booking confirmation and reference.">
+  <meta name="robots" content="noindex">
+  <meta property="og:title" content="Booking Confirmation — Mad Vervet">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://madvervet.com/booking-confirmation.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Partials load via fetch(): a local dev server is required — they won't load over file:// -->
+</head>
+<body>
+  <div id="site-header"></div>
+  <main id="main">
+    <section class="hero">
+      <h1 id="conf-title">Booking Confirmation</h1>
+      <p class="tagline">You're In</p>
+      <p class="lede" id="conf-lede">Thanks for booking with Mad Vervet Hostel.</p>
+    </section>
+    <div class="wave-divider wave-divider--ink" aria-hidden="true">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0 60 C360 0 1080 0 1440 60 L1440 60 L0 60 Z" fill="currentColor"/></svg>
+    </div>
+    <section class="section">
+      <div class="container" style="max-width: 640px;">
+        <article class="card card--pink" id="conf-card">
+          <h2 id="conf-heading">Booking received</h2>
+          <p id="conf-ref-line" hidden>Your booking reference: <strong id="conf-ref"></strong></p>
+          <p id="conf-detail"></p>
+          <p>A confirmation email is on its way to you. Questions? Email
+            <a href="mailto:info@madvervet.com">info@madvervet.com</a> or call
+            <a href="tel:+251923577808">+251 923 577 808</a>.</p>
+          <p>
+            <a class="btn" href="tours.html">Book a Tour</a>
+            <a class="btn btn--pink" href="index.html">Back to Home</a>
+          </p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+  <script src="js/nav.js" defer></script>
+  <script src="js/include.js" defer></script>
+  <script src="js/chat-widget.js" defer></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var params = new URLSearchParams(window.location.search);
+      var type = params.get("type");
+      var ref = params.get("ref");
+      var heading = document.getElementById("conf-heading");
+      var detail = document.getElementById("conf-detail");
+      if (ref) {
+        document.getElementById("conf-ref-line").hidden = false;
+        document.getElementById("conf-ref").textContent = ref;
+      }
+      if (type === "prepay") {
+        heading.textContent = "Payment received — you're all set";
+        detail.textContent = "Your payment has been received in full (10% prepay discount applied). " +
+          "Nothing is due at check-in — just show up and enjoy.";
+      } else if (type === "reserve") {
+        heading.textContent = "Reservation confirmed";
+        detail.textContent = "Your reservation is confirmed. The full amount is due at check-in — " +
+          "we accept cash or card.";
+      } else {
+        heading.textContent = "Booking received";
+        detail.textContent = "If you completed a booking, a confirmation email is on its way. " +
+          "If something looks wrong, just get in touch and we'll sort it out.";
+      }
+    });
+  </script>
+</body>
+</html>

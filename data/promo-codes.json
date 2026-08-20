@@ -1,0 +1,40 @@
+[
+  {
+    "code": "WELCOME10",
+    "type": "percent",
+    "value": 10,
+    "appliesTo": "all",
+    "expires": "2026-12-31",
+    "maxUses": 500,
+    "usedCount": 0
+  },
+  {
+    "code": "ADDIS20",
+    "type": "flat",
+    "value": 20,
+    "appliesTo": "addis-ababa",
+    "expires": "2026-12-31",
+    "maxUses": 100,
+    "usedCount": 0
+  },
+  {
+    "code": "OLDCODE",
+    "type": "percent",
+    "value": 15,
+    "appliesTo": "all",
+    "expires": "2020-01-01",
+    "maxUses": 500,
+    "usedCount": 0,
+    "_note": "TEST ONLY — intentionally expired"
+  },
+  {
+    "code": "MAXEDOUT",
+    "type": "percent",
+    "value": 25,
+    "appliesTo": "all",
+    "expires": "2026-12-31",
+    "maxUses": 3,
+    "usedCount": 3,
+    "_note": "TEST ONLY — intentionally fully used"
+  }
+]

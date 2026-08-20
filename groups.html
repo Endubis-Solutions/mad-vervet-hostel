@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Group Bookings — Mad Vervet Hostel</title>
+  <meta name="description" content="Travelling as a crew? Mad Vervet Hostel offers group bookings in Addis Ababa and Nairobi — dorms, privates, tours and events for groups of 8 or more.">
+  <meta property="og:title" content="Group Bookings — Mad Vervet Hostel">
+  <meta property="og:description" content="Bring the whole crew: group stays, tours and events at our Addis Ababa and Nairobi hostels.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://madvervet.com/groups.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Partials load via fetch(): a local dev server is required — they won't load over file:// -->
+</head>
+<body>
+  <div id="site-header"></div>
+  <main id="main">
+    <section class="hero">
+      <h1>Group Bookings</h1>
+      <p class="tagline">Bring the Whole Troop</p>
+      <p class="lede">School trips, overland crews, wedding parties, sports teams — if you roll 8 or more deep, we'll sort beds, tours and a private BBQ or terrace night.</p>
+    </section>
+    <div class="wave-divider wave-divider--ink" aria-hidden="true">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0 60 C360 0 1080 0 1440 60 L1440 60 L0 60 Z" fill="currentColor"/></svg>
+    </div>
+    <section class="section">
+      <div class="container card-grid">
+        <div class="card"><h2>Group Dorms</h2><p>Keep the crew together with dedicated dorm rooms at both locations, subject to availability.</p></div>
+        <div class="card"><h2>Private Events</h2><p>BBQ nights in Addis, garden parties in Nairobi — we can host your group's own event.</p></div>
+        <div class="card"><h2>Group Tours</h2><p>Private safaris and treks with our trusted local partners, priced per group.</p></div>
+      </div>
+    </section>
+    <section class="section section--white">
+      <div class="container" style="max-width: 640px;">
+        <div class="section-head">
+          <span class="kicker">Tell Us the Plan</span>
+          <h2>Group Booking Inquiry</h2>
+        </div>
+        <form id="group-inquiry-form" novalidate>
+          <div class="field">
+            <label for="group-name">Contact name</label>
+            <input type="text" id="group-name" name="name" required autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="group-email">Email</label>
+            <input type="email" id="group-email" name="email" required autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="group-location">Preferred location</label>
+            <select id="group-location" name="location" required>
+              <option value="">Choose a location…</option>
+              <option>Addis Ababa</option>
+              <option>Nairobi</option>
+              <option>Both</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="group-size">Group size</label>
+            <input type="number" id="group-size" name="group_size" min="8" required>
+          </div>
+          <div class="field">
+            <label for="group-dates">Approximate dates</label>
+            <input type="text" id="group-dates" name="dates" required placeholder="e.g. 12–18 March 2027">
+          </div>
+          <div class="field">
+            <label for="group-message">Tell us about your group</label>
+            <textarea id="group-message" name="message"></textarea>
+          </div>
+          <button class="btn" type="submit">Send Group Inquiry</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+  <script src="js/nav.js" defer></script>
+  <script src="js/include.js" defer></script>
+  <script src="js/chat-widget.js" defer></script>
+  <script src="js/forms.js" defer></script>
+</body>
+</html>

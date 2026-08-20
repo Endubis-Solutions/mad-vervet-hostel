@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Your Stay — Mad Vervet Hostel</title>
+  <meta name="description" content="Book a dorm bed or private room at Mad Vervet Hostel in Addis Ababa or Nairobi. Live pricing in USD, reserve now and pay at the property or prepay online and save 10%.">
+  <meta property="og:title" content="Book Your Stay — Mad Vervet">
+  <meta property="og:description" content="Dorms from $9/night and private rooms in Addis Ababa and Nairobi. Reserve now, pay at the property — or prepay online and save 10%.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://madvervet.com/book.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Partials load via fetch(): a local dev server is required — they won't load over file:// -->
+</head>
+<body>
+  <div id="site-header"></div>
+  <main id="main">
+    <section class="hero">
+      <h1>Book Your Stay</h1>
+      <p class="tagline">Beds From $9/Night</p>
+      <p class="lede">Pick a location, choose your room, and lock it in. Reserve now and pay at the property, or pay online today and save 10%.</p>
+    </section>
+    <div class="wave-divider wave-divider--ink" aria-hidden="true">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0 60 C360 0 1080 0 1440 60 L1440 60 L0 60 Z" fill="currentColor"/></svg>
+    </div>
+
+    <section class="section" aria-labelledby="rooms-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Step 1</span>
+          <h2 id="rooms-heading">Choose Your Room</h2>
+        </div>
+        <div class="location-tabs" role="tablist" aria-label="Hostel location">
+          <button type="button" class="location-tab" role="tab" id="tab-addis-ababa" aria-controls="room-grid" data-location="addis-ababa">Addis Ababa</button>
+          <button type="button" class="location-tab" role="tab" id="tab-nairobi" aria-controls="room-grid" data-location="nairobi">Nairobi</button>
+        </div>
+        <div class="card-grid" id="room-grid"></div>
+      </div>
+    </section>
+
+    <section class="section section--white" id="booking-section" aria-labelledby="booking-heading">
+      <div class="container" style="max-width: 640px;">
+        <div class="section-head">
+          <span class="kicker kicker--pink">Step 2</span>
+          <h2 id="booking-heading">Your Booking</h2>
+        </div>
+        <p class="placeholder-note" id="booking-hint">Select a room above to start your booking.</p>
+        <form id="booking-form" novalidate hidden>
+          <div class="field">
+            <label for="bk-room">Room</label>
+            <input type="text" id="bk-room" name="room" readonly>
+          </div>
+          <div class="field">
+            <label for="bk-checkin">Check-in date</label>
+            <input type="date" id="bk-checkin" name="checkIn" required>
+          </div>
+          <div class="field">
+            <label for="bk-checkout">Check-out date</label>
+            <input type="date" id="bk-checkout" name="checkOut" required>
+          </div>
+          <div class="field">
+            <label for="bk-guests">Number of guests</label>
+            <select id="bk-guests" name="guests" required>
+              <option value="1">1 guest</option>
+              <option value="2" selected>2 guests</option>
+              <option value="3">3 guests</option>
+              <option value="4">4 guests</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="bk-name">Full name</label>
+            <input type="text" id="bk-name" name="name" required autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="bk-email">Email</label>
+            <input type="email" id="bk-email" name="email" required autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="bk-phone">Phone</label>
+            <input type="tel" id="bk-phone" name="phone" required autocomplete="tel">
+          </div>
+          <fieldset class="field booking-amenities">
+            <legend>Extra amenities</legend>
+            <label class="check-label" for="bk-am-airport">
+              <input type="checkbox" id="bk-am-airport" name="airportPickup">
+              Airport pickup/drop-off — $15 flat (one-way)
+            </label>
+            <label class="check-label" for="bk-am-breakfast">
+              <input type="checkbox" id="bk-am-breakfast" name="breakfast">
+              Daily breakfast — $5/day per guest
+            </label>
+            <label class="check-label" for="bk-am-laundry">
+              <input type="checkbox" id="bk-am-laundry" name="laundry">
+              Laundry service — $8 per booking (one load)
+            </label>
+          </fieldset>
+          <div class="field">
+            <label for="bk-requests">Special requests</label>
+            <textarea id="bk-requests" name="specialRequests"></textarea>
+          </div>
+          <div class="field">
+            <label for="bk-discount">Discount code</label>
+            <div class="discount-row">
+              <input type="text" id="bk-discount" name="discountCode" disabled placeholder="Coming soon">
+              <button type="button" class="btn btn--ghost" id="bk-discount-apply" disabled>Apply</button>
+            </div>
+            <p class="price-note">Discount codes are coming soon — this will be enabled shortly.</p>
+          </div>
+          <fieldset class="field payment-options">
+            <legend>Payment option</legend>
+            <label class="payment-card" for="bk-pay-reserve">
+              <input type="radio" id="bk-pay-reserve" name="paymentOption" value="reserve" checked>
+              <span>
+                <strong>Reserve now, pay at the property</strong><br>
+                No online charge today. Full subtotal due at check-in — cash or card.
+              </span>
+            </label>
+            <label class="payment-card" for="bk-pay-prepay">
+              <input type="radio" id="bk-pay-prepay" name="paymentOption" value="prepay">
+              <span>
+                <strong>Pay in full online now — save 10%</strong><br>
+                Your card is charged today with a 10% discount. Nothing due at check-in.
+              </span>
+            </label>
+          </fieldset>
+          <div class="booking-summary" aria-live="polite">
+            <h3>Price Summary</h3>
+            <dl id="booking-summary-lines"></dl>
+          </div>
+          <button class="btn btn--pink" type="submit" id="bk-submit">Submit Reservation</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+  <script src="js/nav.js" defer></script>
+  <script src="js/include.js" defer></script>
+  <script src="js/chat-widget.js" defer></script>
+  <script src="js/booking.js" defer></script>
+  <script src="js/discount.js" defer></script>
+</body>
+</html>
