@@ -284,6 +284,17 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
 .img-placeholder--ink { background: linear-gradient(135deg, var(--ink), var(--terracotta)); color: var(--cream); border-style: solid; }
 .img-placeholder--cream { background: var(--cream); }
 
+/* Framed photos (same border treatment as placeholders) */
+.img-framed {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 3px solid var(--ink);
+  margin-bottom: 1rem;
+}
+
 /* Tables */
 .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table {
