@@ -472,6 +472,8 @@ textarea { min-height: 130px; resize: vertical; }
   box-shadow: 6px 6px 0 var(--sun);
   overflow: hidden;
 }
+/* display:flex above overrides the UA [hidden] style — restore it so close works */
+.chat-panel[hidden] { display: none; }
 .chat-panel-head {
   display: flex;
   justify-content: space-between;
