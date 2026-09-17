@@ -17,19 +17,19 @@
 
   var ROOMS = {
     "addis-ababa": [
-      { type: "Mixed Dorm Bed", note: "En-suite dorm", rate: 10 },
-      { type: "Female Dorm Bed", note: "En-suite dorm", rate: 12 },
+      { type: "Mixed Dorm Bed", note: "shared dorm", rate: 10 },
+      { type: "Female Dorm Bed", note: "shared dorm", rate: 12 },
       { type: "Private Single", note: "Private room", rate: 18 },
       { type: "Private Double", note: "Breakfast included", rate: 25 }
     ],
     nairobi: [
-      { type: "Shared Dorm Bed", note: "Shared dorm", rate: 9 },
-      { type: "Private Room", note: "Garden view", rate: 20 },
-      { type: "Private Room", note: "En-suite", rate: 24 }
+      { type: "Shared Dorm Bed", note: "Shared dorm", rate: 12 },
+      { type: "Private Room", note: "Private", rate: 25 },
+      { type: "Private Room", note: "Private", rate: 30 }
     ]
   };
   var LOCATION_NAMES = { "addis-ababa": "Addis Ababa", nairobi: "Nairobi" };
-  var AMENITY_PRICES = { airportPickup: 15, breakfastPerDayPerGuest: 5, laundry: 8 };
+  var AMENITY_PRICES = { airportPickup: 15, breakfastPerDayPerGuest: 5, laundry: 10 };
   var PREPAY_RATE = 0.9;
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   var OFFLINE_MSG = "Payment isn't connected yet — this will work once the payment step is deployed.";
