@@ -43,11 +43,22 @@
         </article>
       </div>
     </section>
+    <section class="section section--white" id="upsell-section" aria-labelledby="upsell-heading" hidden>
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker kicker--pink">Guest Perk</span>
+          <h2 id="upsell-heading">Add a Tour to Your Stay</h2>
+          <p class="lede">As a confirmed guest you save 5% on any tour below — pay online now and save another 5% (10% off total).</p>
+        </div>
+        <div class="card-grid" id="upsell-grid"></div>
+      </div>
+    </section>
   </main>
   <div id="site-footer"></div>
   <script src="js/nav.js" defer></script>
   <script src="js/include.js" defer></script>
   <script src="js/chat-widget.js" defer></script>
+  <script src="js/upsell.js" defer></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       var params = new URLSearchParams(window.location.search);

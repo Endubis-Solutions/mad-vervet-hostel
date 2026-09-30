@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Events — Mad Vervet Hostel</title>
-  <meta name="description" content="Nightly events at Mad Vervet Hostel: open mic nights, Ethiopian coffee ceremonies, Bole pub crawls and mindfulness classes. Sample event listings.">
+  <meta name="description" content="Nightly events at Mad Vervet Hostel: open mic nights, Ethiopian coffee ceremonies, Bole pub crawls, BBQ nights and games nights. Events at our Addis Ababa and Nairobi hostels.">
   <meta property="og:title" content="Events at Mad Vervet Hostel">
-  <meta property="og:description" content="Something every night: open mic, coffee ceremony, pub crawls, mindfulness. Sample events at our Addis Ababa and Nairobi hostels.">
+  <meta property="og:description" content="Something every night: open mic, coffee ceremony, pub crawls, BBQs. Events at our Addis Ababa and Nairobi hostels.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://madvervet.com/events.html">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -22,37 +22,22 @@
     <section class="hero">
       <h1>Events</h1>
       <p class="tagline">Never a Quiet Night</p>
-      <p class="lede">Sample events below — the real lineup gets posted at the hostel and on our socials.</p>
+      <p class="lede">Pick a location to see what's on — the real lineup gets posted at the hostel and on our socials.</p>
     </section>
     <div class="wave-divider wave-divider--ink" aria-hidden="true">
       <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0 60 C360 0 1080 0 1440 60 L1440 60 L0 60 Z" fill="currentColor"/></svg>
     </div>
-    <section class="section">
-      <div class="container card-grid">
-        <article class="card card--pink">
-          <span class="tag tag--pink">Sample event</span>
-          <h2>Open Mic Night</h2>
-          <p><strong>Thursdays, 8pm — Addis Ababa bar</strong></p>
-          <p>Poets, singers, comedians and brave first-timers. Sign up at the bar, free entry, cheap beers.</p>
-        </article>
-        <article class="card">
-          <span class="tag tag--pink">Sample event</span>
-          <h2>Ethiopian Coffee Ceremony Night</h2>
-          <p><strong>Sundays, 6pm — Addis Ababa garden</strong></p>
-          <p>Fresh-roasted buna brewed the traditional way, with popcorn and stories around the outdoor fireplace.</p>
-        </article>
-        <article class="card">
-          <span class="tag tag--pink">Sample event</span>
-          <h2>Bole Pub Crawl</h2>
-          <p><strong>Saturdays, 9pm — meet at Addis reception</strong></p>
-          <p>Our staff lead the charge down the Bole nightlife strip. Bring ID and your dancing shoes.</p>
-        </article>
-        <article class="card">
-          <span class="tag tag--pink">Sample event</span>
-          <h2>Morning Mindfulness Class</h2>
-          <p><strong>Wednesdays, 7am — Nairobi garden</strong></p>
-          <p>Gentle guided stretching and breathing under the trees. The perfect pub-crawl recovery.</p>
-        </article>
+    <section class="section" aria-labelledby="events-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">What's On</span>
+          <h2 id="events-heading">Events by Location</h2>
+        </div>
+        <div class="location-tabs" role="tablist" aria-label="Hostel location">
+          <button type="button" class="location-tab" role="tab" id="tab-addis-ababa" aria-controls="event-grid" data-location="addis-ababa">Addis Ababa</button>
+          <button type="button" class="location-tab" role="tab" id="tab-nairobi" aria-controls="event-grid" data-location="nairobi">Nairobi</button>
+        </div>
+        <div class="card-grid" id="event-grid"></div>
       </div>
     </section>
     <section class="section section--ink text-center">
@@ -67,5 +52,6 @@
   <script src="js/nav.js" defer></script>
   <script src="js/include.js" defer></script>
   <script src="js/chat-widget.js" defer></script>
+  <script src="js/events.js" defer></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tours &amp; Adventures — Mad Vervet Hostel</title>
-  <meta name="description" content="Book tours from Mad Vervet Hostel: Lalibela churches, Simien Mountains trek, Omo Valley, Maasai Mara safari, Diani Beach and Lake Nakuru. Example prices in USD.">
+  <meta name="description" content="Book tours from Mad Vervet Hostel: Lalibela churches, Simien Mountains trek, Omo Valley, Maasai Mara safari, Diani Beach and Lake Nakuru. Prices in USD.">
   <meta property="og:title" content="Tours &amp; Adventures — Mad Vervet">
   <meta property="og:description" content="Ethiopia and Kenya tours run with trusted local partners — safaris, treks and cultural trips from our hostel desks.">
   <meta property="og:type" content="website">
@@ -22,93 +22,78 @@
     <section class="hero">
       <h1>Tours &amp; Adventures</h1>
       <p class="tagline">Beyond the Bar</p>
-      <p class="lede">All prices below are example / placeholder prices in USD. Our front desk pairs you with trusted local operators.</p>
+      <p class="lede">Pick a country, pick a tour, book it right here. All prices in USD, run with trusted local operators.</p>
     </section>
     <div class="wave-divider wave-divider--ink" aria-hidden="true">
       <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0 60 C360 0 1080 0 1440 60 L1440 60 L0 60 Z" fill="currentColor"/></svg>
     </div>
-    <section class="section">
+    <section class="section" aria-labelledby="tours-heading">
       <div class="container">
-        <div class="card-grid">
-          <article class="card card--pink">
-            <div class="img-placeholder img-placeholder--terra" role="img" aria-label="Placeholder image: Lalibela rock-hewn churches">Image placeholder — Lalibela</div>
-            <h2>Lalibela Rock-Hewn Churches</h2>
-            <p><span class="tag">3 days / 2 nights</span></p>
-            <p><strong>from $180/person</strong> <span class="price-note">(example price)</span></p>
-          </article>
-          <article class="card card--pink">
-            <div class="img-placeholder img-placeholder--ink" role="img" aria-label="Placeholder image: Simien Mountains trek">Image placeholder — Simien Mountains</div>
-            <h2>Simien Mountains Trek</h2>
-            <p><span class="tag">2 days / 1 night</span></p>
-            <p><strong>from $150/person</strong> <span class="price-note">(example price)</span></p>
-          </article>
-          <article class="card card--pink">
-            <div class="img-placeholder img-placeholder--pink" role="img" aria-label="Placeholder image: Omo Valley cultural tour">Image placeholder — Omo Valley</div>
-            <h2>Omo Valley Cultural Tour</h2>
-            <p><span class="tag">4 days / 3 nights</span></p>
-            <p><strong>from $320/person</strong> <span class="price-note">(example price)</span></p>
-          </article>
-          <article class="card card--pink">
-            <div class="img-placeholder img-placeholder--terra" role="img" aria-label="Placeholder image: Maasai Mara safari">Image placeholder — Maasai Mara</div>
-            <h2>Maasai Mara Safari</h2>
-            <p><span class="tag">3 days / 2 nights</span></p>
-            <p><strong>from $350/person</strong> <span class="price-note">(example price)</span></p>
-          </article>
-          <article class="card card--pink">
-            <div class="img-placeholder img-placeholder--pink" role="img" aria-label="Placeholder image: Diani Beach getaway">Image placeholder — Diani Beach</div>
-            <h2>Diani Beach Getaway</h2>
-            <p><span class="tag">3 days / 2 nights</span></p>
-            <p><strong>from $200/person</strong> <span class="price-note">(example price)</span></p>
-          </article>
-          <article class="card card--pink">
-            <div class="img-placeholder img-placeholder--ink" role="img" aria-label="Placeholder image: Lake Nakuru day safari">Image placeholder — Lake Nakuru</div>
-            <h2>Lake Nakuru Day Safari</h2>
-            <p><span class="tag">1 day</span></p>
-            <p><strong>from $90/person</strong> <span class="price-note">(example price)</span></p>
-          </article>
+        <div class="section-head">
+          <span class="kicker">Step 1</span>
+          <h2 id="tours-heading">Choose Your Tour</h2>
         </div>
+        <div class="location-tabs" role="tablist" aria-label="Tour country">
+          <button type="button" class="location-tab" role="tab" id="tab-ethiopia" aria-controls="tour-grid" data-location="ethiopia">Ethiopia</button>
+          <button type="button" class="location-tab" role="tab" id="tab-kenya" aria-controls="tour-grid" data-location="kenya">Kenya</button>
+        </div>
+        <div class="card-grid" id="tour-grid"></div>
       </div>
     </section>
-    <section class="section section--white">
+    <section class="section section--white" id="purchase-section" aria-labelledby="purchase-heading">
       <div class="container" style="max-width: 640px;">
         <div class="section-head">
-          <span class="kicker kicker--pink">Plan It</span>
-          <h2>Tour Inquiry</h2>
+          <span class="kicker kicker--pink">Step 2</span>
+          <h2 id="purchase-heading">Purchase Your Tour</h2>
         </div>
-        <form id="tour-inquiry-form" novalidate>
+        <p class="placeholder-note" id="purchase-hint">Select a tour above to book it.</p>
+        <form id="tour-purchase-form" novalidate hidden>
           <div class="field">
-            <label for="tour-name">Full name</label>
-            <input type="text" id="tour-name" name="name" required autocomplete="name">
+            <label for="tp-tour">Tour</label>
+            <input type="text" id="tp-tour" name="tour" readonly>
           </div>
           <div class="field">
-            <label for="tour-email">Email</label>
-            <input type="email" id="tour-email" name="email" required autocomplete="email">
+            <label for="tp-date">Preferred start date</label>
+            <input type="date" id="tp-date" name="date" required>
           </div>
           <div class="field">
-            <label for="tour-select">Which tour?</label>
-            <select id="tour-select" name="tour" required>
-              <option value="">Choose a tour…</option>
-              <option>Lalibela Rock-Hewn Churches</option>
-              <option>Simien Mountains Trek</option>
-              <option>Omo Valley Cultural Tour</option>
-              <option>Maasai Mara Safari</option>
-              <option>Diani Beach Getaway</option>
-              <option>Lake Nakuru Day Safari</option>
-            </select>
+            <label for="tp-guests">Number of travellers</label>
+            <input type="number" id="tp-guests" name="guests" min="1" max="16" value="2" required>
           </div>
           <div class="field">
-            <label for="tour-guests">Number of travellers</label>
-            <input type="number" id="tour-guests" name="guests" min="1" required>
+            <label for="tp-name">Full name</label>
+            <input type="text" id="tp-name" name="name" required autocomplete="name">
           </div>
           <div class="field">
-            <label for="tour-date">Preferred start date</label>
-            <input type="date" id="tour-date" name="date" required>
+            <label for="tp-email">Email</label>
+            <input type="email" id="tp-email" name="email" required autocomplete="email">
           </div>
           <div class="field">
-            <label for="tour-message">Anything else?</label>
-            <textarea id="tour-message" name="message"></textarea>
+            <label for="tp-phone">Phone</label>
+            <input type="tel" id="tp-phone" name="phone" required autocomplete="tel">
           </div>
-          <button class="btn btn--pink" type="submit">Send Inquiry</button>
+          <fieldset class="field payment-options">
+            <legend>Payment option</legend>
+            <label class="payment-card" for="tp-pay-reserve">
+              <input type="radio" id="tp-pay-reserve" name="paymentOption" value="reserve" checked>
+              <span>
+                <strong>Reserve now, pay at the hostel desk</strong><br>
+                No online charge today. Full amount due at the tour desk — cash or card.
+              </span>
+            </label>
+            <label class="payment-card" for="tp-pay-now">
+              <input type="radio" id="tp-pay-now" name="paymentOption" value="paynow">
+              <span>
+                <strong>Pay online now — extra 5% off</strong><br>
+                Your card is charged today with an extra 5% discount. Nothing due later.
+              </span>
+            </label>
+          </fieldset>
+          <div class="booking-summary" aria-live="polite">
+            <h3>Price Summary</h3>
+            <dl id="tour-summary-lines"></dl>
+          </div>
+          <button class="btn btn--pink" type="submit" id="tp-submit">Book Tour</button>
         </form>
       </div>
     </section>
@@ -117,6 +102,6 @@
   <script src="js/nav.js" defer></script>
   <script src="js/include.js" defer></script>
   <script src="js/chat-widget.js" defer></script>
-  <script src="js/forms.js" defer></script>
+  <script src="js/tours.js" defer></script>
 </body>
 </html>

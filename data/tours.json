@@ -1,0 +1,62 @@
+{
+  "ethiopia": {
+    "name": "Ethiopia",
+    "hostelLocation": "addis-ababa",
+    "tours": [
+      {
+        "id": "lalibela-churches",
+        "name": "Lalibela Rock-Hewn Churches",
+        "duration": "3 days / 2 nights",
+        "price": 180,
+        "description": "Fly north to the rock-hewn wonders of Lalibela — churches carved straight into the mountain, with a local guide and all transfers included.",
+        "image": "images/addis-ababa-sign.jpg"
+      },
+      {
+        "id": "simien-mountains-trek",
+        "name": "Simien Mountains Trek",
+        "duration": "2 days / 1 night",
+        "price": 150,
+        "description": "Epic Ethiopian highlands: escarpment views, gelada monkeys and a night under the stars with a fully supported trekking crew.",
+        "image": "images/hero-group.jpg"
+      },
+      {
+        "id": "omo-valley-cultural",
+        "name": "Omo Valley Cultural Tour",
+        "duration": "4 days / 3 nights",
+        "price": 320,
+        "description": "A guided journey through the Omo Valley visiting local communities and markets — one of Africa's most remarkable cultural regions.",
+        "image": "images/hero-party.jpg"
+      }
+    ]
+  },
+  "kenya": {
+    "name": "Kenya",
+    "hostelLocation": "nairobi",
+    "tours": [
+      {
+        "id": "maasai-mara-safari",
+        "name": "Maasai Mara Safari",
+        "duration": "3 days / 2 nights",
+        "price": 350,
+        "description": "Chase the Big Five across the Mara with a driver-guide, tented camp nights and game drives at dawn and dusk.",
+        "image": "images/nairobi-lounge.jpg"
+      },
+      {
+        "id": "diani-beach-getaway",
+        "name": "Diani Beach Getaway",
+        "duration": "3 days / 2 nights",
+        "price": 200,
+        "description": "White sand, warm Indian Ocean water and palm trees — transfers, beach stay and a sunset dhow cruise included.",
+        "image": "images/hero-lounge.jpg"
+      },
+      {
+        "id": "lake-nakuru-day-safari",
+        "name": "Lake Nakuru Day Safari",
+        "duration": "1 day",
+        "price": 90,
+        "description": "A full-day trip from Nairobi to Lake Nakuru National Park — flamingos, rhinos and lakeside game viewing, back by dinner.",
+        "image": "images/hero-group.jpg"
+      }
+    ]
+  }
+}

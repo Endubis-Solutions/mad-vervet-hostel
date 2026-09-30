@@ -1,0 +1,129 @@
+{
+  "addis-ababa": {
+    "name": "Addis Ababa",
+    "rooms": [
+      {
+        "id": "mixed-dorm-ensuite-8",
+        "type": "8-bed Mixed Dorm En-Suite",
+        "category": "dorm",
+        "note": "En-suite shared dorm",
+        "rate": 12,
+        "unitLabel": "bed",
+        "maxUnits": 8,
+        "images": [
+          { "src": "images/hero-group.jpg", "alt": "Mixed dorm with bunk beds" },
+          { "src": "images/hero-lounge.jpg", "alt": "Dorm lounge area" }
+        ]
+      },
+      {
+        "id": "mixed-dorm-8",
+        "type": "8-bed Mixed Dorm",
+        "category": "dorm",
+        "note": "Shared dorm",
+        "rate": 10,
+        "unitLabel": "bed",
+        "maxUnits": 8,
+        "images": [
+          { "src": "images/hero-group.jpg", "alt": "Mixed dorm with bunk beds" },
+          { "src": "images/hero-party.jpg", "alt": "Hostel common room" }
+        ]
+      },
+      {
+        "id": "female-dorm-6",
+        "type": "6-bed Female Dorm",
+        "category": "dorm",
+        "note": "Female-only shared dorm",
+        "rate": 12,
+        "unitLabel": "bed",
+        "maxUnits": 6,
+        "images": [
+          { "src": "images/hero-lounge.jpg", "alt": "Female dorm" },
+          { "src": "images/hero-group.jpg", "alt": "Dorm detail" }
+        ]
+      },
+      {
+        "id": "private-single",
+        "type": "Private Single",
+        "category": "private",
+        "note": "Private room, single bed",
+        "rate": 18,
+        "unitLabel": "room",
+        "maxUnits": 2,
+        "images": [
+          { "src": "images/hero-lounge.jpg", "alt": "Private single room" },
+          { "src": "images/addis-ababa-sign.jpg", "alt": "Room entrance" }
+        ]
+      },
+      {
+        "id": "private-double",
+        "type": "Private Double",
+        "category": "private",
+        "note": "Private room, breakfast included",
+        "rate": 25,
+        "unitLabel": "room",
+        "maxUnits": 2,
+        "images": [
+          { "src": "images/hero-lounge.jpg", "alt": "Private double room" },
+          { "src": "images/hero-group.jpg", "alt": "Room seating area" }
+        ]
+      }
+    ]
+  },
+  "nairobi": {
+    "name": "Nairobi",
+    "rooms": [
+      {
+        "id": "mixed-dorm-8",
+        "type": "8-bed Mixed Dorm",
+        "category": "dorm",
+        "note": "Shared dorm",
+        "rate": 9,
+        "unitLabel": "bed",
+        "maxUnits": 8,
+        "images": [
+          { "src": "images/nairobi-lounge.jpg", "alt": "Mixed dorm with bunk beds" },
+          { "src": "images/hero-group.jpg", "alt": "Dorm lounge area" }
+        ]
+      },
+      {
+        "id": "female-dorm-6",
+        "type": "6-bed Female Dorm",
+        "category": "dorm",
+        "note": "Female-only shared dorm",
+        "rate": 11,
+        "unitLabel": "bed",
+        "maxUnits": 6,
+        "images": [
+          { "src": "images/nairobi-lounge.jpg", "alt": "Female dorm" },
+          { "src": "images/hero-lounge.jpg", "alt": "Dorm detail" }
+        ]
+      },
+      {
+        "id": "private-single",
+        "type": "Private Single",
+        "category": "private",
+        "note": "Private room, garden view",
+        "rate": 20,
+        "unitLabel": "room",
+        "maxUnits": 2,
+        "images": [
+          { "src": "images/nairobi-lounge.jpg", "alt": "Private single room" },
+          { "src": "images/hero-lounge.jpg", "alt": "Room detail" }
+        ]
+      },
+      {
+        "id": "private-double",
+        "type": "Private Double",
+        "category": "private",
+        "note": "Private room, en-suite",
+        "rate": 24,
+        "unitLabel": "room",
+        "maxUnits": 2,
+        "images": [
+          { "src": "images/nairobi-lounge.jpg", "alt": "Private double room" },
+          { "src": "images/hero-group.jpg", "alt": "Room seating area" }
+        ]
+      }
+    ]
+  }
+}

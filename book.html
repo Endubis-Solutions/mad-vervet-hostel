@@ -43,16 +43,22 @@
     </section>
 
     <section class="section section--white" id="booking-section" aria-labelledby="booking-heading">
-      <div class="container" style="max-width: 640px;">
+      <div class="container">
         <div class="section-head">
           <span class="kicker kicker--pink">Step 2</span>
           <h2 id="booking-heading">Your Booking</h2>
         </div>
         <p class="placeholder-note" id="booking-hint">Select a room above to start your booking.</p>
-        <form id="booking-form" novalidate hidden>
+        <div class="booking-detail" id="booking-detail" hidden>
+          <div class="booking-detail-media" id="booking-media" aria-label="Room photos"></div>
+          <form id="booking-form" novalidate>
           <div class="field">
             <label for="bk-room">Room</label>
             <input type="text" id="bk-room" name="room" readonly>
+          </div>
+          <div class="field">
+            <label for="bk-quantity" id="bk-quantity-label">Number of beds</label>
+            <select id="bk-quantity" name="units" required></select>
           </div>
           <div class="field">
             <label for="bk-checkin">Check-in date</label>
@@ -132,7 +138,8 @@
             <dl id="booking-summary-lines"></dl>
           </div>
           <button class="btn btn--pink" type="submit" id="bk-submit">Submit Reservation</button>
-        </form>
+          </form>
+        </div>
       </div>
     </section>
   </main>
@@ -140,6 +147,7 @@
   <script src="js/nav.js" defer></script>
   <script src="js/include.js" defer></script>
   <script src="js/chat-widget.js" defer></script>
+  <script src="js/gallery.js" defer></script>
   <script src="js/booking.js" defer></script>
   <script src="js/discount.js" defer></script>
 </body>

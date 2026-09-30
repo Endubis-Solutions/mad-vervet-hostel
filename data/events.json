@@ -1,0 +1,54 @@
+{
+  "addis-ababa": {
+    "name": "Addis Ababa",
+    "events": [
+      {
+        "id": "open-mic-night",
+        "name": "Open Mic Night",
+        "schedule": "Thursdays, 8pm — Addis Ababa bar",
+        "description": "Poets, singers, comedians and brave first-timers. Sign up at the bar, free entry, cheap beers.",
+        "image": "images/hero-party.jpg"
+      },
+      {
+        "id": "coffee-ceremony-night",
+        "name": "Ethiopian Coffee Ceremony Night",
+        "schedule": "Sundays, 6pm — Addis Ababa garden",
+        "description": "Fresh-roasted buna brewed the traditional way, with popcorn and stories around the outdoor fireplace.",
+        "image": "images/hero-lounge.jpg"
+      },
+      {
+        "id": "bole-pub-crawl",
+        "name": "Bole Pub Crawl",
+        "schedule": "Saturdays, 9pm — meet at Addis reception",
+        "description": "Our staff lead the charge down the Bole nightlife strip. Bring ID and your dancing shoes.",
+        "image": "images/addis-ababa-sign.jpg"
+      }
+    ]
+  },
+  "nairobi": {
+    "name": "Nairobi",
+    "events": [
+      {
+        "id": "morning-mindfulness",
+        "name": "Morning Mindfulness Class",
+        "schedule": "Wednesdays, 7am — Nairobi garden",
+        "description": "Gentle guided stretching and breathing under the trees. The perfect pub-crawl recovery.",
+        "image": "images/nairobi-lounge.jpg"
+      },
+      {
+        "id": "terrace-bbq-night",
+        "name": "Terrace BBQ Night",
+        "schedule": "Fridays, 7pm — Nairobi terrace bar",
+        "description": "Nyama choma on the terrace, cold drinks and a DJ till late. Meat and veggie options, pay at the bar.",
+        "image": "images/hero-group.jpg"
+      },
+      {
+        "id": "lavington-games-night",
+        "name": "Lavington Games Night",
+        "schedule": "Mondays, 8pm — Nairobi lounge",
+        "description": "Table tennis tournament, board games and card games by the fireplace. Winner drinks free.",
+        "image": "images/hero-lounge.jpg"
+      }
+    ]
+  }
+}

@@ -6,6 +6,7 @@
   --sun: #F5B833;
   --pop-pink: #E63E85;
   --white: #FFFFFF;
+  --brand-green: #2FA84F;
   --font-heading: "Archivo Black", sans-serif;
   --font-body: "Work Sans", sans-serif;
   --maxw: 1100px;
@@ -135,7 +136,7 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
   font-size: 1.15rem;
   text-transform: uppercase;
 }
-.brand svg { width: 40px; height: 40px; color: #2FA84F; flex-shrink: 0; }
+.brand svg { width: 40px; height: 40px; color: var(--brand-green); flex-shrink: 0; }
 .main-nav ul {
   list-style: none;
   display: flex;
@@ -233,7 +234,7 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
   margin-bottom: 1.5rem;
 }
 .hero p.lede { max-width: 620px; margin: 0 auto 2rem; }
-.hero .mascot-hero { width: 120px; height: 120px; color: var(--sun); margin: 0 auto 1rem; display: block; }
+.hero .mascot-hero { width: 120px; height: 120px; color: var(--brand-green); margin: 0 auto 1rem; display: block; }
 .hero-actions { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; }
 
 /* Reusable wave divider */
@@ -348,7 +349,7 @@ tr:last-child td { border-bottom: none; }
   padding: 1.5rem;
   box-shadow: 6px 6px 0 var(--sun);
 }
-.testimonial svg { width: 34px; height: 34px; color: var(--terracotta); }
+.testimonial svg { width: 34px; height: 34px; color: var(--brand-green); }
 .testimonial blockquote { margin: 0.75rem 0; font-style: italic; }
 .testimonial cite { font-weight: 700; font-style: normal; }
 
@@ -394,7 +395,7 @@ textarea { min-height: 130px; resize: vertical; }
 .site-footer h3 { color: var(--sun); font-size: 1rem; }
 .site-footer a { color: var(--cream); text-decoration: none; }
 .site-footer a:hover { color: var(--sun); }
-.footer-brand svg { width: 48px; height: 48px; color: var(--sun); }
+.footer-brand svg { width: 48px; height: 48px; color: var(--brand-green); }
 .footer-brand { display: flex; align-items: center; gap: 0.6rem; font-family: var(--font-heading); text-transform: uppercase; color: var(--cream); margin-bottom: 0.75rem; }
 .footer-bottom {
   border-top: 1px solid rgba(251, 246, 238, 0.25);
@@ -608,3 +609,75 @@ textarea { min-height: 130px; resize: vertical; }
   font-family: var(--font-body);
 }
 .chat-send { padding: 0.5rem 0.9rem; }
+
+/* WhatsApp CTA */
+.btn--whatsapp { background: var(--brand-green); color: var(--white); }
+.btn--whatsapp:hover { background: var(--sun); color: var(--ink); }
+
+/* Photo gallery (location pages, booking room detail) */
+.gallery { margin-bottom: 1.5rem; }
+.gallery-main {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 3px solid var(--ink);
+  margin-bottom: 0.75rem;
+  background: var(--ink);
+}
+.gallery-thumbs {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding-bottom: 0.4rem;
+  -webkit-overflow-scrolling: touch;
+}
+.gallery-thumb {
+  flex: 0 0 auto;
+  width: 110px;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 3px solid var(--ink);
+  padding: 0;
+  cursor: pointer;
+  background: var(--ink);
+  opacity: 0.65;
+  transition: opacity 0.15s ease, border-color 0.15s ease;
+}
+.gallery-thumb:hover { opacity: 1; }
+.gallery-thumb--active { opacity: 1; border-color: var(--pop-pink); }
+
+/* Cards with a background image (room types, tours, events) */
+.card--bg {
+  position: relative;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  color: var(--white);
+}
+.card--bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(21, 21, 21, 0.35), rgba(21, 21, 21, 0.82));
+}
+.card--bg > * { position: relative; z-index: 1; }
+.card--bg .tag { box-shadow: none; }
+
+/* Booking detail: room images left, form right */
+.booking-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+@media (max-width: 800px) {
+  .booking-detail { grid-template-columns: 1fr; }
+}
+.booking-detail-media .gallery { margin-bottom: 0; }
+
+/* Price lines on upsell cards */
+.price-old { text-decoration: line-through; opacity: 0.75; margin-right: 0.4rem; }
+.price-new { font-weight: 700; }

@@ -77,7 +77,7 @@ exports.handler = async (event) => {
       }
     }],
     metadata: metadata(booking),
-    success_url: base + "/booking-confirmation.html?type=prepay&ref={CHECKOUT_SESSION_ID}",
+    success_url: base + "/booking-confirmation.html?type=prepay&ref={CHECKOUT_SESSION_ID}&location=" + encodeURIComponent(booking.location),
     cancel_url: base + "/book.html"
   });
   return json(200, { ok: true, checkoutUrl: session.url, ref: session.id });

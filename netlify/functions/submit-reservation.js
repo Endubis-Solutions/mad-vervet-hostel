@@ -52,6 +52,7 @@ exports.handler = async (event) => {
   return json(200, {
     ok: true,
     ref,
-    redirectUrl: "/booking-confirmation.html?type=reserve&ref=" + encodeURIComponent(ref)
+    redirectUrl: "/booking-confirmation.html?type=reserve&ref=" + encodeURIComponent(ref) +
+      "&location=" + encodeURIComponent(booking.location)
   });
 };

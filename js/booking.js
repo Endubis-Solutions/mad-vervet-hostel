@@ -1,4 +1,5 @@
 /* booking.js — room selection, live pricing and submission for book.html.
+   Room data is loaded from data/rooms.json (later to be served by the CMS).
    Endpoints (Netlify functions, not yet implemented):
      - reserve : POST /.netlify/functions/submit-reservation
      - prepay  : POST /.netlify/functions/create-checkout-session
@@ -15,19 +16,7 @@
 (function () {
   "use strict";
 
-  var ROOMS = {
-    "addis-ababa": [
-      { type: "Mixed Dorm Bed", note: "shared dorm", rate: 10 },
-      { type: "Female Dorm Bed", note: "shared dorm", rate: 12 },
-      { type: "Private Single", note: "Private room", rate: 18 },
-      { type: "Private Double", note: "Breakfast included", rate: 25 }
-    ],
-    nairobi: [
-      { type: "Shared Dorm Bed", note: "Shared dorm", rate: 12 },
-      { type: "Private Room", note: "Private", rate: 25 },
-      { type: "Private Room", note: "Private", rate: 30 }
-    ]
-  };
+  var ROOMS = null; // loaded from data/rooms.json: { locationKey: { name, rooms: [...] } }
   var LOCATION_NAMES = { "addis-ababa": "Addis Ababa", nairobi: "Nairobi" };
   var AMENITY_PRICES = { airportPickup: 15, breakfastPerDayPerGuest: 5, laundry: 10 };
   var PREPAY_RATE = 0.9;
@@ -36,7 +25,12 @@
 
   var state = {
     location: "addis-ababa",
+    roomId: "",
     roomType: "",
+    category: "",
+    unitLabel: "bed",
+    maxUnits: 1,
+    units: 1,
     rate: 0,
     checkIn: "",
     checkOut: "",
@@ -58,6 +52,20 @@
   function $(id) { return document.getElementById(id); }
   function round2(n) { return Math.round(n * 100) / 100; }
   function money(n) { return "$" + round2(n).toFixed(2); }
+  function plural(label, n) { return n === 1 ? label : label + "s"; }
+
+  /* Availability check — STUB. Before a booking is confirmed this must look
+     up live bed/room availability in the CMS (endpoint TBD, e.g.
+     POST /.netlify/functions/check-availability with
+     { location, roomId, units, checkIn, checkOut }).
+     For now it always reports available after a short simulated delay. */
+  function checkAvailability(location, roomId, units, checkIn, checkOut) {
+    return new Promise(function (resolve) {
+      setTimeout(function () {
+        resolve({ available: true, remaining: null });
+      }, 600);
+    });
+  }
 
   function computeNights() {
     if (!state.checkIn || !state.checkOut) return 0;
@@ -67,7 +75,7 @@
 
   function recalculateTotal() {
     state.nights = computeNights();
-    var total = state.nights * state.rate;
+    var total = state.nights * state.rate * state.units;
     if (state.amenities.airportPickup) total += AMENITY_PRICES.airportPickup;
     if (state.amenities.breakfast) total += AMENITY_PRICES.breakfastPerDayPerGuest * state.nights * state.guests;
     if (state.amenities.laundry) total += AMENITY_PRICES.laundry;
@@ -85,7 +93,8 @@
     if (!dl) return;
     var lines = [];
     if (state.roomType && state.nights > 0) {
-      lines.push(["Room", state.roomType + " × " + state.nights + " night(s) × " + money(state.rate)]);
+      lines.push(["Room", state.roomType + " × " + state.units + " " + plural(state.unitLabel, state.units) +
+        " × " + state.nights + " night(s) × " + money(state.rate)]);
     }
     lines.push(["Subtotal", money(state.subtotal)]);
     if (pricingHook) pricingHook.promoLines(state).forEach(function (l) { lines.push(l); });
@@ -103,16 +112,23 @@
     }).join("");
   }
 
+  function currentRooms() {
+    return (ROOMS && ROOMS[state.location]) ? ROOMS[state.location].rooms : [];
+  }
+
   function renderRooms() {
     var grid = $("room-grid");
     grid.innerHTML = "";
-    ROOMS[state.location].forEach(function (room, i) {
+    currentRooms().forEach(function (room) {
       var card = document.createElement("article");
-      card.className = "card room-card" + (state.roomType === room.type ? " room-card--selected" : "");
+      card.className = "card room-card card--bg" + (state.roomId === room.id ? " room-card--selected" : "");
+      if (room.images && room.images.length) {
+        card.style.backgroundImage = "url('" + room.images[0].src + "')";
+      }
       card.innerHTML =
         "<h3>" + room.type + "</h3>" +
         "<p><span class=\"tag tag--terra\">" + room.note + "</span></p>" +
-        "<p><strong>" + money(room.rate) + "/night</strong></p>";
+        "<p><strong>" + money(room.rate) + "/night per " + room.unitLabel + "</strong></p>";
       var btn = document.createElement("button");
       btn.type = "button";
       btn.className = "btn";
@@ -123,11 +139,60 @@
     });
   }
 
+  function renderQuantityOptions() {
+    var select = $("bk-quantity");
+    $("bk-quantity-label").textContent = "Number of " + plural(state.unitLabel, 2);
+    select.innerHTML = "";
+    for (var i = 1; i <= state.maxUnits; i++) {
+      var opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = i + " " + plural(state.unitLabel, i);
+      select.appendChild(opt);
+    }
+    select.value = state.units;
+  }
+
+  function renderRoomMedia(room) {
+    var media = $("booking-media");
+    media.innerHTML = "";
+    if (!room.images || !room.images.length) return;
+    var gallery = document.createElement("div");
+    gallery.className = "gallery";
+    var main = document.createElement("img");
+    main.className = "gallery-main";
+    main.src = room.images[0].src;
+    main.alt = room.images[0].alt;
+    gallery.appendChild(main);
+    var thumbs = document.createElement("div");
+    thumbs.className = "gallery-thumbs";
+    room.images.forEach(function (img, i) {
+      var thumb = document.createElement("img");
+      thumb.className = "gallery-thumb" + (i === 0 ? " gallery-thumb--active" : "");
+      thumb.src = img.src;
+      thumb.alt = img.alt;
+      thumb.tabIndex = 0;
+      thumb.setAttribute("role", "button");
+      thumb.setAttribute("aria-label", "View photo: " + img.alt);
+      thumb.loading = "lazy";
+      thumbs.appendChild(thumb);
+    });
+    gallery.appendChild(thumbs);
+    media.appendChild(gallery);
+    if (typeof window.initGalleries === "function") window.initGalleries(media);
+  }
+
   function selectRoom(room) {
+    state.roomId = room.id;
     state.roomType = room.type;
+    state.category = room.category;
+    state.unitLabel = room.unitLabel;
+    state.maxUnits = room.maxUnits;
+    state.units = 1;
     state.rate = room.rate;
     $("bk-room").value = room.type + " — " + LOCATION_NAMES[state.location];
-    $("booking-form").hidden = false;
+    renderQuantityOptions();
+    renderRoomMedia(room);
+    $("booking-detail").hidden = false;
     $("booking-hint").hidden = true;
     renderRooms();
     recalculateTotal();
@@ -136,6 +201,7 @@
 
   function selectLocation(loc) {
     state.location = loc;
+    state.roomId = "";
     state.roomType = "";
     state.rate = 0;
     document.querySelectorAll(".location-tab").forEach(function (tab) {
@@ -143,7 +209,7 @@
       tab.classList.toggle("location-tab--active", active);
       tab.setAttribute("aria-selected", active ? "true" : "false");
     });
-    $("booking-form").hidden = true;
+    $("booking-detail").hidden = true;
     $("booking-hint").hidden = false;
     renderRooms();
     recalculateTotal();
@@ -192,7 +258,10 @@
   function buildPayload() {
     return {
       location: state.location,
+      roomId: state.roomId,
       roomType: state.roomType,
+      units: state.units,
+      unitLabel: state.unitLabel,
       checkIn: state.checkIn,
       checkOut: state.checkOut,
       guests: state.guests,
@@ -255,10 +324,35 @@
       });
   }
 
+  function confirmBooking() {
+    var submitBtn = $("bk-submit");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Checking availability…";
+    setStatus("Checking availability for your dates…", true);
+    checkAvailability(state.location, state.roomId, state.units, state.checkIn, state.checkOut)
+      .then(function (result) {
+        if (!result.available) {
+          setStatus("Sorry — those " + plural(state.unitLabel, state.units) +
+            " aren't available for your dates. Try fewer " + plural(state.unitLabel, 2) +
+            " or different dates.", false);
+          return;
+        }
+        submitBooking();
+      })
+      .catch(function () {
+        setStatus("Couldn't check availability right now — please try again.", false);
+      })
+      .finally(function () {
+        submitBtn.disabled = false;
+        syncFromInputs();
+      });
+  }
+
   function syncFromInputs() {
     state.checkIn = $("bk-checkin").value;
     state.checkOut = $("bk-checkout").value;
     state.guests = Number($("bk-guests").value) || 1;
+    state.units = Math.min(Number($("bk-quantity").value) || 1, state.maxUnits);
     state.amenities.airportPickup = $("bk-am-airport").checked;
     state.amenities.breakfast = $("bk-am-breakfast").checked;
     state.amenities.laundry = $("bk-am-laundry").checked;
@@ -276,27 +370,40 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".location-tab").forEach(function (tab) {
-      tab.addEventListener("click", function () { selectLocation(tab.dataset.location); });
-    });
-    $("booking-form").addEventListener("input", syncFromInputs);
-    $("booking-form").addEventListener("change", syncFromInputs);
-    $("booking-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      syncFromInputs();
-      if (!validate()) return;
-      submitBooking();
-    });
-    initFromUrl();
+    fetch("data/rooms.json")
+      .then(function (res) {
+        if (!res.ok) throw new Error("Failed to load rooms");
+        return res.json();
+      })
+      .then(function (data) {
+        ROOMS = data;
+        document.querySelectorAll(".location-tab").forEach(function (tab) {
+          tab.addEventListener("click", function () { selectLocation(tab.dataset.location); });
+        });
+        $("booking-form").addEventListener("input", syncFromInputs);
+        $("booking-form").addEventListener("change", syncFromInputs);
+        $("booking-form").addEventListener("submit", function (e) {
+          e.preventDefault();
+          syncFromInputs();
+          if (!validate()) return;
+          confirmBooking();
+        });
+        initFromUrl();
+      })
+      .catch(function () {
+        $("room-grid").innerHTML =
+          "<p class=\"placeholder-note\">Rooms couldn't be loaded right now — please refresh the page or try again later.</p>";
+      });
   });
 
   window.MadVervetBooking = {
     state: state,
-    rooms: ROOMS,
+    rooms: function () { return ROOMS; },
     recalculateTotal: recalculateTotal,
     buildPayload: buildPayload,
     selectLocation: selectLocation,
     selectRoom: selectRoom,
+    checkAvailability: checkAvailability,
     setPricingHook: function (hook) { pricingHook = hook; }
   };
 })();

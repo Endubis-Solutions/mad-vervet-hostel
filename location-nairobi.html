@@ -26,7 +26,8 @@
       <p class="lede">Lavington, Nairobi (street address placeholder — to be confirmed). About 15 minutes from Wilson Airport, near The Junction Mall.</p>
       <div class="hero-actions">
         <a class="btn" href="book.html?location=nairobi">Book This Location</a>
-        <a class="btn btn--ghost" style="color: var(--cream); border-color: var(--cream);" href="mailto:info@madvervet.com">Email Us</a>
+        <!-- TODO: replace with the real Nairobi WhatsApp number once confirmed -->
+        <a class="btn btn--whatsapp" href="https://wa.me/254700000000?text=Hi%20Mad%20Vervet%20Nairobi!" target="_blank" rel="noopener">WhatsApp Us</a>
       </div>
     </section>
     <div class="wave-divider wave-divider--ink" aria-hidden="true">
@@ -34,7 +35,15 @@
     </div>
     <section class="section">
       <div class="container">
-        <img class="img-framed" src="images/nairobi-lounge.jpg" alt="Mad Vervet Nairobi lounge with stone fireplace" loading="lazy">
+        <div class="gallery">
+          <img class="gallery-main" src="images/nairobi-lounge.jpg" alt="Mad Vervet Nairobi lounge with stone fireplace">
+          <div class="gallery-thumbs">
+            <img class="gallery-thumb gallery-thumb--active" src="images/nairobi-lounge.jpg" alt="Mad Vervet Nairobi lounge with stone fireplace" tabindex="0" role="button" aria-label="View photo: lounge" >
+            <img class="gallery-thumb" src="images/hero-group.jpg" alt="Guests hanging out together" tabindex="0" role="button" aria-label="View photo: guests" loading="lazy">
+            <img class="gallery-thumb" src="images/hero-lounge.jpg" alt="Hostel lounge" tabindex="0" role="button" aria-label="View photo: lounge area" loading="lazy">
+            <img class="gallery-thumb" src="images/hero-party.jpg" alt="Party night at the hostel bar" tabindex="0" role="button" aria-label="View photo: party night" loading="lazy">
+          </div>
+        </div>
         <h2>Amenities</h2>
         <ul class="amenity-list">
           <li>Free WiFi</li>
@@ -52,21 +61,11 @@
         </ul>
       </div>
     </section>
-    <section class="section section--white">
+    <section class="section section--white text-center">
       <div class="container">
-        <h2>Rooms &amp; Rates</h2>
-        <div class="table-wrap">
-          <table>
-            <caption class="price-note">Placeholder rates pending confirmation — all prices in USD</caption>
-            <thead><tr><th scope="col">Room</th><th scope="col">Details</th><th scope="col">From</th></tr></thead>
-            <tbody>
-              <tr><td>Shared Dorm Bed</td><td>—</td><td>$9</td></tr>
-              <tr><td>Private Room</td><td>Garden view</td><td>$20</td></tr>
-              <tr><td>Private Room</td><td>En-suite</td><td>$24</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="mt-2"><a class="btn" href="book.html?location=nairobi">Book This Location</a></p>
+        <h2>Ready to Stay?</h2>
+        <p>Dorms and private rooms in leafy Lavington — pick your dates and lock in your bed.</p>
+        <a class="btn" href="book.html?location=nairobi">Book This Location</a>
       </div>
     </section>
     <section class="section">
@@ -75,8 +74,8 @@
         <!-- TODO: confirm Nairobi contact details -->
         <address>
           Lavington, Nairobi, Kenya<br>
-          Phone: <em>placeholder — to be confirmed</em><br>
-          Email: <em>placeholder — use <a href="mailto:info@madvervet.com">info@madvervet.com</a></em>
+          WhatsApp: <a href="https://wa.me/254700000000" target="_blank" rel="noopener">+254 700 000 000</a> <em>(placeholder — to be confirmed)</em><br>
+          Email: <a href="mailto:info@madvervet.com">info@madvervet.com</a>
         </address>
         <p class="placeholder-note">Map placeholder — embedded map coming soon.</p>
       </div>
@@ -86,5 +85,6 @@
   <script src="js/nav.js" defer></script>
   <script src="js/include.js" defer></script>
   <script src="js/chat-widget.js" defer></script>
+  <script src="js/gallery.js" defer></script>
 </body>
 </html>
