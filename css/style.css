@@ -135,7 +135,7 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
   font-size: 1.15rem;
   text-transform: uppercase;
 }
-.brand svg { width: 40px; height: 40px; color: var(--sun); flex-shrink: 0; }
+.brand svg { width: 40px; height: 40px; color: #2FA84F; flex-shrink: 0; }
 .main-nav ul {
   list-style: none;
   display: flex;
