@@ -66,7 +66,7 @@
     rate: null, // nightly rate from CMS pricing (null = not loaded / not set in CMS)
     checkIn: "",
     checkOut: "",
-    guests: 2,
+    guests: 1,
     nights: 0,
     amenities: { airportPickup: false, breakfast: false, laundry: false },
     paymentOption: "reserve",
@@ -384,6 +384,7 @@
     state.maxUnits = room.maxUnits;
     state.availableUnits = null;
     state.rate = null;
+    state.guests = room.category === "private" && room.occupancyPriced ? 2 : 1;
     $("bk-room").value = room.type + " — " + LOCATION_NAMES[state.location];
     renderGuestsOptions();
     refreshAvailability();
