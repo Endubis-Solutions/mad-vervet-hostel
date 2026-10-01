@@ -45,7 +45,7 @@
     state.promoDiscountApplied = false;
     if (!applied || state.subtotal <= 0 || !locationOk(state)) return;
     var promo = discountFor(state.subtotal);
-    if (state.paymentOption === "prepay") {
+    if (state.paymentOption === "prepay" && state.onlinePaymentEnabled) {
       if (promo <= round2(state.subtotal * 0.1)) return; // 10% prepay wins — promo not applied
       state.amountChargedNow = round2(state.subtotal - promo);
     } else {
@@ -59,7 +59,8 @@
   function promoLines(state) {
     if (!applied) return [];
     if (!locationOk(state)) return [["Promo " + applied.code, "not valid for this location"]];
-    if (state.promoDiscountApplied && state.paymentOption === "reserve") {
+    var prepayActive = state.paymentOption === "prepay" && state.onlinePaymentEnabled;
+    if (state.promoDiscountApplied && !prepayActive) {
       return [["Promo " + applied.code, "−" + money(state.promoDiscount)]];
     }
     if (state.promoDiscountApplied) return []; // prepay: discount line label shows "Promo CODE"

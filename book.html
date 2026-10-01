@@ -59,6 +59,7 @@
           <div class="field">
             <label for="bk-quantity" id="bk-quantity-label">Number of beds</label>
             <select id="bk-quantity" name="units" required></select>
+            <p class="price-note" id="bk-availability-note" aria-live="polite"></p>
           </div>
           <div class="field">
             <label for="bk-checkin">Check-in date</label>
@@ -128,8 +129,9 @@
             <label class="payment-card" for="bk-pay-prepay">
               <input type="radio" id="bk-pay-prepay" name="paymentOption" value="prepay">
               <span>
-                <strong>Pay in full online now — save 10%</strong><br>
-                Your card is charged today with a 10% discount. Nothing due at check-in.
+                <strong>Pay in full online — save 10% (coming soon)</strong><br>
+                Online payment isn't connected yet: submit your reservation now, pay at the property,
+                and the 10% prepay discount will be honored once online payment launches.
               </span>
             </label>
           </fieldset>

@@ -6,8 +6,8 @@
         "id": "mixed-dorm-ensuite-8",
         "type": "8-bed Mixed Dorm En-Suite",
         "category": "dorm",
+        "cmsRooms": ["Lalibela"],
         "note": "En-suite shared dorm",
-        "rate": 12,
         "unitLabel": "bed",
         "maxUnits": 8,
         "images": [
@@ -19,8 +19,8 @@
         "id": "mixed-dorm-8",
         "type": "8-bed Mixed Dorm",
         "category": "dorm",
+        "cmsRooms": ["Hawassa"],
         "note": "Shared dorm",
-        "rate": 10,
         "unitLabel": "bed",
         "maxUnits": 8,
         "images": [
@@ -32,8 +32,8 @@
         "id": "female-dorm-6",
         "type": "6-bed Female Dorm",
         "category": "dorm",
+        "cmsRooms": ["Arbaminch"],
         "note": "Female-only shared dorm",
-        "rate": 12,
         "unitLabel": "bed",
         "maxUnits": 6,
         "images": [
@@ -43,12 +43,13 @@
       },
       {
         "id": "private-single",
-        "type": "Private Single",
+        "type": "Single Room",
         "category": "private",
-        "note": "Private room, single bed",
-        "rate": 18,
+        "cmsRooms": ["Denakil", "Gondar"],
+        "note": "Private room, single occupancy",
         "unitLabel": "room",
         "maxUnits": 2,
+        "maxOccupancy": 1,
         "images": [
           { "src": "images/hero-lounge.jpg", "alt": "Private single room" },
           { "src": "images/addis-ababa-sign.jpg", "alt": "Room entrance" }
@@ -56,12 +57,14 @@
       },
       {
         "id": "private-double",
-        "type": "Private Double",
+        "type": "Private Room",
         "category": "private",
-        "note": "Private room, breakfast included",
-        "rate": 25,
+        "cmsRooms": ["Axum", "Bale", "Bahr Dar", "Omo"],
+        "note": "Private room — price depends on occupancy (1 guest = single rate, 2 guests = double rate)",
         "unitLabel": "room",
-        "maxUnits": 2,
+        "maxUnits": 4,
+        "maxOccupancy": 2,
+        "occupancyPriced": true,
         "images": [
           { "src": "images/hero-lounge.jpg", "alt": "Private double room" },
           { "src": "images/hero-group.jpg", "alt": "Room seating area" }
@@ -73,52 +76,41 @@
     "name": "Nairobi",
     "rooms": [
       {
-        "id": "mixed-dorm-8",
-        "type": "8-bed Mixed Dorm",
+        "id": "female-dorm-4",
+        "type": "Female Dorm",
         "category": "dorm",
-        "note": "Shared dorm",
-        "rate": 9,
-        "unitLabel": "bed",
-        "maxUnits": 8,
-        "images": [
-          { "src": "images/nairobi-lounge.jpg", "alt": "Mixed dorm with bunk beds" },
-          { "src": "images/hero-group.jpg", "alt": "Dorm lounge area" }
-        ]
-      },
-      {
-        "id": "female-dorm-6",
-        "type": "6-bed Female Dorm",
-        "category": "dorm",
+        "cmsRooms": ["Female Dorm (4-Bed)"],
         "note": "Female-only shared dorm",
-        "rate": 11,
         "unitLabel": "bed",
-        "maxUnits": 6,
+        "maxUnits": 4,
         "images": [
           { "src": "images/nairobi-lounge.jpg", "alt": "Female dorm" },
           { "src": "images/hero-lounge.jpg", "alt": "Dorm detail" }
         ]
       },
       {
-        "id": "private-single",
-        "type": "Private Single",
-        "category": "private",
-        "note": "Private room, garden view",
-        "rate": 20,
-        "unitLabel": "room",
-        "maxUnits": 2,
+        "id": "mixed-dorm-4",
+        "type": "4 Bed Mixed Dorm",
+        "category": "dorm",
+        "cmsRooms": ["Mixed Dorm (6-Bed)"],
+        "note": "Shared dorm",
+        "unitLabel": "bed",
+        "maxUnits": 12,
         "images": [
-          { "src": "images/nairobi-lounge.jpg", "alt": "Private single room" },
-          { "src": "images/hero-lounge.jpg", "alt": "Room detail" }
+          { "src": "images/nairobi-lounge.jpg", "alt": "Mixed dorm with bunk beds" },
+          { "src": "images/hero-group.jpg", "alt": "Dorm lounge area" }
         ]
       },
       {
         "id": "private-double",
-        "type": "Private Double",
+        "type": "Private Room",
         "category": "private",
-        "note": "Private room, en-suite",
-        "rate": 24,
+        "cmsRooms": ["Private Double", "Private Single"],
+        "note": "Private room — price depends on occupancy (1 guest = single rate, 2 guests = double rate)",
         "unitLabel": "room",
         "maxUnits": 2,
+        "maxOccupancy": 2,
+        "occupancyPriced": true,
         "images": [
           { "src": "images/nairobi-lounge.jpg", "alt": "Private double room" },
           { "src": "images/hero-group.jpg", "alt": "Room seating area" }
