@@ -35,6 +35,24 @@
   var PREPAY_RATE = 0.9;
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   var OFFLINE_MSG = "Couldn't reach the booking system right now — please try again in a moment.";
+  /* Fallback nightly rates, used ONLY when the CMS pricing API has no rate
+     for a room (CMS pricing always wins when present — see resolveRate()).
+     Dorms: { bed } per guest per night. Private: { single, double } by
+     occupancy — Private Room $20 (1 guest) / $30 (2 guests), Single Room $19. */
+  var FALLBACK_RATES = {
+    "addis-ababa": {
+      "mixed-dorm-ensuite-8": { bed: 12 },
+      "mixed-dorm-8": { bed: 10 },
+      "female-dorm-6": { bed: 12 },
+      "private-single": { single: 19 },
+      "private-double": { single: 20, double: 30 }
+    },
+    nairobi: {
+      "female-dorm-4": { bed: 11 },
+      "mixed-dorm-4": { bed: 9 },
+      "private-double": { single: 20, double: 30 }
+    }
+  };
 
   var state = {
     location: "addis-ababa",
@@ -90,10 +108,13 @@
   function checkAvailability(location, roomId, units, checkIn, checkOut) {
     var room = roomById(roomId);
     var category = room ? room.category : "dorm";
-    var names = room && room.cmsRooms ? room.cmsRooms : [];
+    var cmsCategory = room && room.cmsCategory ? room.cmsCategory.toLowerCase() : null;
     return fetchAvailability(location, checkIn, checkOut).then(function (data) {
       var remaining = (data.beds || []).filter(function (bed) {
-        return names.length ? names.indexOf(bed.roomName) !== -1 : bed.roomType === category;
+        // Match the room type via the CMS category name; fall back to the
+        // coarse roomType when the API omits per-bed category info.
+        var bedCat = bed.category && bed.category.name ? bed.category.name.toLowerCase() : null;
+        return bedCat && cmsCategory ? bedCat === cmsCategory : bed.roomType === category;
       }).length;
       return { available: remaining >= units, remaining: remaining };
     });
@@ -149,18 +170,21 @@
 
   function num(v) { var n = Number(v); return isFinite(n) && n > 0 ? n : null; }
 
-  /* Nightly rate for the selected room from CMS pricing. Private rooms are
-     priced by occupancy: 1 guest = single rate, 2 guests = double rate.
-     Returns null when pricing hasn't loaded or isn't set for the room. */
+  /* Nightly rate for the selected room. CMS pricing wins when present;
+     otherwise FALLBACK_RATES. Private rooms are priced by occupancy:
+     1 guest = single rate, 2 guests = double rate. Returns null when no
+     rate exists at all. */
   function resolveRate() {
     var room = roomById(state.roomId);
     if (!room) return null;
-    var pricing = PRICING[state.location];
-    if (!pricing || !pricing.loaded) return null;
     var entry = null;
-    (room.cmsRooms || []).forEach(function (name) {
-      if (!entry && pricing.byRoom[name]) entry = pricing.byRoom[name];
-    });
+    var pricing = PRICING[state.location];
+    if (pricing && pricing.loaded) {
+      (room.cmsRooms || []).forEach(function (name) {
+        if (!entry && pricing.byRoom[name]) entry = pricing.byRoom[name];
+      });
+    }
+    if (!entry) entry = (FALLBACK_RATES[state.location] || {})[room.id] || null;
     if (!entry) return null;
     if (room.category === "private") {
       var double = room.occupancyPriced && state.guests >= 2;
@@ -184,7 +208,6 @@
     if (!state.roomId || !state.checkIn || !state.checkOut || computeNights() <= 0) {
       state.availableUnits = null;
       if (note) note.textContent = state.roomId ? "Choose your dates to see live availability." : "";
-      renderQuantityOptions();
       return Promise.resolve(null);
     }
     if (note) note.textContent = "Checking availability…";
@@ -196,13 +219,13 @@
             ? result.remaining + " " + plural(state.unitLabel, result.remaining) + " available for your dates."
             : "Sold out for your dates — try different dates.";
         }
-        renderQuantityOptions();
+        renderGuestsOptions();
         return result;
       })
       .catch(function () {
         state.availableUnits = null;
         if (note) note.textContent = "Couldn't load live availability — showing maximum capacity.";
-        renderQuantityOptions();
+        renderGuestsOptions();
         return null;
       });
   }
@@ -213,8 +236,11 @@
     return ms > 0 ? Math.round(ms / 86400000) : 0;
   }
 
+  /* Dorms: every guest needs a bed (units = guests, priced per bed per
+     guest). Private rooms: one room per booking, priced by occupancy. */
   function recalculateTotal() {
     state.nights = computeNights();
+    state.units = state.category === "private" ? 1 : state.guests;
     state.rate = resolveRate();
     var total = state.rate == null ? 0 : state.nights * state.rate * state.units;
     if (state.amenities.airportPickup) total += AMENITY_PRICES.airportPickup;
@@ -281,17 +307,18 @@
     });
   }
 
-  /* Dynamic price text for a room card — from CMS pricing, never hardcoded.
-     Private rooms show the single/double occupancy rates when known. */
+  /* Dynamic price text for a room card — CMS pricing wins, FALLBACK_RATES
+     otherwise. Private rooms show the single/double occupancy rates. */
   function priceLabelFor(room) {
-    var pricing = PRICING[state.location];
-    if (!pricing) return "Loading price…";
-    if (pricing.error || !pricing.loaded) return "Price on request";
     var entry = null;
-    (room.cmsRooms || []).forEach(function (name) {
-      if (!entry && pricing.byRoom[name]) entry = pricing.byRoom[name];
-    });
-    if (!entry) return "Price on request";
+    var pricing = PRICING[state.location];
+    if (pricing && pricing.loaded) {
+      (room.cmsRooms || []).forEach(function (name) {
+        if (!entry && pricing.byRoom[name]) entry = pricing.byRoom[name];
+      });
+    }
+    if (!entry) entry = (FALLBACK_RATES[state.location] || {})[room.id] || null;
+    if (!entry) return pricing && pricing.error ? "Price on request" : "Loading price…";
     if (room.occupancyPriced && entry.single != null && entry.double != null) {
       return "from " + money(entry.single) + "/night (1 guest) · " + money(entry.double) + "/night (2 guests)";
     }
@@ -299,12 +326,16 @@
     return rate != null ? money(rate) + "/night per " + room.unitLabel : "Price on request";
   }
 
-  /* Occupancy drives private-room pricing: cap the guests selector at the
-     room's maxOccupancy (dorms keep 1–4 guests). */
+  /* Guests are the quantity driver: for dorms each guest needs a bed (cap at
+     the dorm's bed count), for private rooms guests are the occupancy that
+     drives pricing (Single Room 1, Private Room max 2). */
   function renderGuestsOptions() {
     var select = $("bk-guests");
     var room = roomById(state.roomId);
-    var cap = room && room.category === "private" ? (room.maxOccupancy || 2) : 4;
+    var cap = !room ? 4
+      : room.category === "private" ? (room.maxOccupancy || 2)
+      : room.maxUnits;
+    if (state.availableUnits != null) cap = Math.max(1, Math.min(cap, state.availableUnits));
     select.innerHTML = "";
     for (var i = 1; i <= cap; i++) {
       var opt = document.createElement("option");
@@ -314,32 +345,6 @@
     }
     if (state.guests > cap) state.guests = cap;
     select.value = state.guests;
-  }
-
-  function renderQuantityOptions() {
-    var select = $("bk-quantity");
-    $("bk-quantity-label").textContent = "Number of " + plural(state.unitLabel, 2);
-    select.innerHTML = "";
-    var cap = state.availableUnits == null
-      ? state.maxUnits
-      : Math.min(state.maxUnits, Math.max(state.availableUnits, 1));
-    for (var i = 1; i <= cap; i++) {
-      var opt = document.createElement("option");
-      opt.value = i;
-      opt.textContent = i + " " + plural(state.unitLabel, i);
-      select.appendChild(opt);
-    }
-    if (state.availableUnits === 0) {
-      var soldOut = document.createElement("option");
-      soldOut.value = "";
-      soldOut.textContent = "Sold out for these dates";
-      soldOut.disabled = true;
-      select.appendChild(soldOut);
-      select.value = "";
-    } else {
-      if (state.units > cap) state.units = cap;
-      select.value = state.units;
-    }
   }
 
   function renderRoomMedia(room) {
@@ -377,11 +382,9 @@
     state.category = room.category;
     state.unitLabel = room.unitLabel;
     state.maxUnits = room.maxUnits;
-    state.units = 1;
     state.availableUnits = null;
     state.rate = null;
     $("bk-room").value = room.type + " — " + LOCATION_NAMES[state.location];
-    renderQuantityOptions();
     renderGuestsOptions();
     refreshAvailability();
     renderRoomMedia(room);
@@ -586,7 +589,6 @@
     state.checkOut = $("bk-checkout").value;
     if (datesChanged) scheduleAvailabilityRefresh();
     state.guests = Number($("bk-guests").value) || 1;
-    state.units = Math.min(Number($("bk-quantity").value) || 1, state.maxUnits);
     state.amenities.airportPickup = $("bk-am-airport").checked;
     state.amenities.breakfast = $("bk-am-breakfast").checked;
     state.amenities.laundry = $("bk-am-laundry").checked;
