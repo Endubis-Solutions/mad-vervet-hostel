@@ -4,58 +4,76 @@
     "hostelLocation": "addis-ababa",
     "tours": [
       {
+        "id": "denakil-depression",
+        "name": "Denakil",
+        "duration": "3 days / 2 nights",
+        "price": 320,
+        "description": "An expedition to the Danakil Depression — one of the hottest and most otherworldly places on Earth: lava lakes, salt flats and neon sulphur springs.",
+        "details": [
+          "Visit Erta Ale volcano, the Dallol sulphur springs and the salt caravans of the Afar region.",
+          "Includes 4x4 transport from Addis Ababa, an experienced local guide, all meals and camping equipment.",
+          "Nights are spent camping under the stars — basic conditions, unforgettable views.",
+          "Departs with a minimum of 2 travellers; bring sun protection, sturdy shoes and a sense of adventure."
+        ],
+        "image": "images/hero-party.jpg"
+      },
+      {
         "id": "lalibela-churches",
         "name": "Lalibela Rock-Hewn Churches",
-        "duration": "3 days / 2 nights",
-        "price": 180,
+        "duration": "2 days / 1 night",
+        "price": 200,
         "description": "Fly north to the rock-hewn wonders of Lalibela — churches carved straight into the mountain, with a local guide and all transfers included.",
+        "details": [
+          "Guided tour of both clusters of the 12th-century rock-hewn churches, a UNESCO World Heritage Site.",
+          "Includes transfers, entrance fees and a licensed local guide.",
+          "One night in a local hotel with breakfast included.",
+          "Dress modestly for the churches — shoulders and knees covered; shoes come off at the door."
+        ],
         "image": "images/addis-ababa-sign.jpg"
       },
       {
-        "id": "simien-mountains-trek",
-        "name": "Simien Mountains Trek",
-        "duration": "2 days / 1 night",
-        "price": 150,
-        "description": "Epic Ethiopian highlands: escarpment views, gelada monkeys and a night under the stars with a fully supported trekking crew.",
-        "image": "images/hero-group.jpg"
+        "id": "harar-city-tour",
+        "name": "Harar City Tour",
+        "duration": "Full day",
+        "price": 80,
+        "description": "Wander the walled old town of Harar — 368 alleyways, colourful markets, coffee at the source and the famous hyena feeders at night.",
+        "details": [
+          "Guided walk through the UNESCO-listed Jugol old town, its markets and traditional Harari houses.",
+          "Coffee tasting in the region where coffee was first cultivated.",
+          "Evening visit to the hyena men — watch wild hyenas fed by hand, a Harar tradition.",
+          "Includes a local guide and entrance fees."
+        ],
+        "image": "images/hero-lounge.jpg"
       },
       {
         "id": "omo-valley-cultural",
         "name": "Omo Valley Cultural Tour",
         "duration": "4 days / 3 nights",
-        "price": 320,
+        "price": 380,
         "description": "A guided journey through the Omo Valley visiting local communities and markets — one of Africa's most remarkable cultural regions.",
-        "image": "images/hero-party.jpg"
-      }
-    ]
-  },
-  "kenya": {
-    "name": "Kenya",
-    "hostelLocation": "nairobi",
-    "tours": [
-      {
-        "id": "maasai-mara-safari",
-        "name": "Maasai Mara Safari",
-        "duration": "3 days / 2 nights",
-        "price": 350,
-        "description": "Chase the Big Five across the Mara with a driver-guide, tented camp nights and game drives at dawn and dusk.",
-        "image": "images/nairobi-lounge.jpg"
-      },
-      {
-        "id": "diani-beach-getaway",
-        "name": "Diani Beach Getaway",
-        "duration": "3 days / 2 nights",
-        "price": 200,
-        "description": "White sand, warm Indian Ocean water and palm trees — transfers, beach stay and a sunset dhow cruise included.",
-        "image": "images/hero-lounge.jpg"
-      },
-      {
-        "id": "lake-nakuru-day-safari",
-        "name": "Lake Nakuru Day Safari",
-        "duration": "1 day",
-        "price": 90,
-        "description": "A full-day trip from Nairobi to Lake Nakuru National Park — flamingos, rhinos and lakeside game viewing, back by dinner.",
+        "details": [
+          "Visit the communities of the lower Omo Valley — including the Hamar, Mursi and Kara — with a respectful local guide.",
+          "Time your trip with the weekly markets at Turmi, Dimeka or Key Afer.",
+          "Includes transport, guide, accommodation and park/community fees.",
+          "A long overland journey — expect early starts, rough roads and huge rewards."
+        ],
         "image": "images/hero-group.jpg"
+      },
+      {
+        "id": "addis-city-tour",
+        "name": "Addis City Tour",
+        "duration": "Full day",
+        "price": 80,
+        "groupDiscount": true,
+        "maxTravellers": 3,
+        "description": "Get your bearings in Addis and make the best of your short time — the National Museum, Merkato, Entoto Hills and a proper coffee ceremony, all in one day.",
+        "details": [
+          "Meet Lucy at the National Museum, haggle (gently) in Merkato — Africa's biggest open market — and take in the view from Entoto Hills.",
+          "Includes a traditional Ethiopian coffee ceremony and lunch at a local favourite.",
+          "Transport and a local guide included; runs with 1–3 travellers.",
+          "Group deal: every additional guest gets 30% off (up to 3 people per tour)."
+        ],
+        "image": "images/addis-ababa-sign.jpg"
       }
     ]
   }

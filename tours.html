@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tours &amp; Adventures — Mad Vervet Hostel</title>
-  <meta name="description" content="Book tours from Mad Vervet Hostel: Lalibela churches, Simien Mountains trek, Omo Valley, Maasai Mara safari, Diani Beach and Lake Nakuru. Prices in USD.">
+  <meta name="description" content="Book tours from Mad Vervet Hostel in Addis Ababa: Danakil Depression, Lalibela rock-hewn churches, Harar, Omo Valley and the Addis city tour. Prices in USD.">
   <meta property="og:title" content="Tours &amp; Adventures — Mad Vervet">
-  <meta property="og:description" content="Ethiopia and Kenya tours run with trusted local partners — safaris, treks and cultural trips from our hostel desks.">
+  <meta property="og:description" content="Tours from our Addis Ababa hostel desk — Danakil, Lalibela, Harar, Omo Valley and the Addis city tour, run with trusted local partners.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://madvervet.com/tours.html">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -33,10 +33,7 @@
           <span class="kicker">Step 1</span>
           <h2 id="tours-heading">Choose Your Tour</h2>
         </div>
-        <div class="location-tabs" role="tablist" aria-label="Tour country">
-          <button type="button" class="location-tab" role="tab" id="tab-ethiopia" aria-controls="tour-grid" data-location="ethiopia">Ethiopia</button>
-          <button type="button" class="location-tab" role="tab" id="tab-kenya" aria-controls="tour-grid" data-location="kenya">Kenya</button>
-        </div>
+        <p class="lede">All tours depart from Addis Ababa. Tap <strong>Details</strong> on any tour for the full itinerary.</p>
         <div class="card-grid" id="tour-grid"></div>
       </div>
     </section>
@@ -55,10 +52,12 @@
           <div class="field">
             <label for="tp-date">Preferred start date</label>
             <input type="date" id="tp-date" name="date" required>
+            <p class="price-note">Tours must be booked at least 3 days in advance — earlier dates are unavailable.</p>
           </div>
           <div class="field">
             <label for="tp-guests">Number of travellers</label>
-            <input type="number" id="tp-guests" name="guests" min="1" max="16" value="2" required>
+            <input type="number" id="tp-guests" name="guests" min="1" max="16" value="1" required>
+            <p class="price-note" id="tp-guests-note" hidden>Addis City Tour: max 3 travellers — every additional guest gets 30% off.</p>
           </div>
           <div class="field">
             <label for="tp-name">Full name</label>
@@ -98,6 +97,18 @@
       </div>
     </section>
   </main>
+  <div class="modal" id="tour-modal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-tour-name">
+      <button type="button" class="modal-close" data-close-modal aria-label="Close details">&times;</button>
+      <h2 id="modal-tour-name"></h2>
+      <p><span class="tag" id="modal-tour-duration"></span> <strong id="modal-tour-price"></strong></p>
+      <p id="modal-tour-description"></p>
+      <ul id="modal-tour-details"></ul>
+      <p class="price-note">All tours must be booked at least 3 days in advance.</p>
+      <button type="button" class="btn btn--pink" id="modal-book-btn">Book This Tour</button>
+    </div>
+  </div>
   <div id="site-footer"></div>
   <script src="js/nav.js" defer></script>
   <script src="js/include.js" defer></script>

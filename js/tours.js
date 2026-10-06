@@ -1,5 +1,11 @@
-/* tours.js — country selection, tour cards and purchase flow for tours.html.
-   Tour data is loaded from data/tours.json (keyed by country: ethiopia/kenya).
+/* tours.js — tour cards, details modal and purchase flow for tours.html.
+   Tour data is loaded from data/tours.json (all tours depart from Addis Ababa).
+   Booking rules:
+     - Tours can only be booked at least 3 days in advance (earlier dates are
+       blocked on the date picker).
+     - Travellers default to 1.
+     - Addis City Tour (groupDiscount): every additional guest gets 30% off,
+       up to 3 travellers per tour.
    Purchase paths:
      - reserve : POST /.netlify/functions/tour-inquiry (pay at the desk)
      - paynow  : POST /.netlify/functions/create-checkout-session (Stripe —
@@ -10,18 +16,22 @@
   "use strict";
 
   var TOURS = null; // loaded from data/tours.json
+  var LOCATION = "ethiopia";
   var GUEST_RATE = 0.05;  // 5% guest discount (upsell arrivals)
   var PAYNOW_RATE = 0.05; // extra 5% for paying online now
+  var GROUP_RATE = 0.30;  // 30% off each additional guest (group-discount tours only)
+  var MIN_LEAD_DAYS = 3;  // tours must be booked at least 3 days in advance
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   var OFFLINE_MSG = "Payment isn't connected yet — this will work once the payment step is deployed.";
 
   var state = {
-    location: "ethiopia",
     tourId: "",
     tourName: "",
     price: 0,
+    groupDiscount: false,
+    maxTravellers: 16,
     date: "",
-    travellers: 2,
+    travellers: 1,
     paymentOption: "reserve",
     guestDiscount: false
   };
@@ -30,14 +40,30 @@
   function round2(n) { return Math.round(n * 100) / 100; }
   function money(n) { return "$" + round2(n).toFixed(2); }
 
+  function minDateStr() {
+    var d = new Date();
+    d.setDate(d.getDate() + MIN_LEAD_DAYS);
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+
   function discountRate() {
     return (state.guestDiscount ? GUEST_RATE : 0) + (state.paymentOption === "paynow" ? PAYNOW_RATE : 0);
   }
 
+  function groupSavings() {
+    if (!state.groupDiscount) return 0;
+    var extra = Math.max(state.travellers - 1, 0);
+    return round2(state.price * GROUP_RATE * extra);
+  }
+
   function totals() {
     var base = round2(state.price * state.travellers);
-    var discount = round2(base * discountRate());
-    return { base: base, discount: discount, total: round2(base - discount) };
+    var group = groupSavings();
+    var afterGroup = round2(base - group);
+    var discount = round2(afterGroup * discountRate());
+    return { base: base, group: group, discount: discount, total: round2(afterGroup - discount) };
   }
 
   function renderSummary() {
@@ -49,8 +75,10 @@
       lines.push(["Tour", state.tourName + " × " + state.travellers + " traveller(s) × " + money(state.price)]);
     }
     lines.push(["Subtotal", money(t.base)]);
-    if (state.guestDiscount) lines.push(["Guest discount (5%)", "−" + money(round2(t.base * GUEST_RATE))]);
-    if (state.paymentOption === "paynow") lines.push(["Pay-now discount (5%)", "−" + money(round2(t.base * PAYNOW_RATE))]);
+    if (t.group > 0) lines.push(["Group discount (30% off extra guests)", "−" + money(t.group)]);
+    var afterGroup = round2(t.base - t.group);
+    if (state.guestDiscount) lines.push(["Guest discount (5%)", "−" + money(round2(afterGroup * GUEST_RATE))]);
+    if (state.paymentOption === "paynow") lines.push(["Pay-now discount (5%)", "−" + money(round2(afterGroup * PAYNOW_RATE))]);
     if (state.paymentOption === "paynow") {
       lines.push(["Total due now", money(t.total)]);
     } else {
@@ -63,7 +91,38 @@
   }
 
   function currentTours() {
-    return (TOURS && TOURS[state.location]) ? TOURS[state.location].tours : [];
+    return (TOURS && TOURS[LOCATION]) ? TOURS[LOCATION].tours : [];
+  }
+
+  function findTour(id) {
+    return currentTours().filter(function (t) { return t.id === id; })[0];
+  }
+
+  /* --- Details modal --- */
+  var lastFocused = null;
+
+  function openModal(tour) {
+    $("modal-tour-name").textContent = tour.name;
+    $("modal-tour-duration").textContent = tour.duration;
+    $("modal-tour-price").textContent = money(tour.price) + "/person";
+    $("modal-tour-description").textContent = tour.description;
+    $("modal-tour-details").innerHTML = (tour.details || []).map(function (d) {
+      return "<li>" + d + "</li>";
+    }).join("");
+    $("modal-book-btn").onclick = function () {
+      closeModal();
+      selectTour(tour);
+    };
+    lastFocused = document.activeElement;
+    $("tour-modal").hidden = false;
+    document.body.style.overflow = "hidden";
+    $("modal-book-btn").focus();
+  }
+
+  function closeModal() {
+    $("tour-modal").hidden = true;
+    document.body.style.overflow = "";
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
   }
 
   function renderTours() {
@@ -77,12 +136,19 @@
         "<h3>" + tour.name + "</h3>" +
         "<p><span class=\"tag\">" + tour.duration + "</span></p>" +
         "<p>" + tour.description + "</p>" +
-        "<p><strong>" + money(tour.price) + "/person</strong></p>";
+        "<p><strong>" + money(tour.price) + "/person</strong>" +
+        (tour.groupDiscount ? " <span class=\"tag\">30% off extra guests</span>" : "") + "</p>";
+      var detailsLink = document.createElement("button");
+      detailsLink.type = "button";
+      detailsLink.className = "btn btn--ghost";
+      detailsLink.textContent = "Details";
+      detailsLink.addEventListener("click", function () { openModal(tour); });
       var btn = document.createElement("button");
       btn.type = "button";
       btn.className = "btn";
       btn.textContent = "Book This Tour";
       btn.addEventListener("click", function () { selectTour(tour); });
+      card.appendChild(detailsLink);
       card.appendChild(btn);
       grid.appendChild(card);
     });
@@ -92,28 +158,20 @@
     state.tourId = tour.id;
     state.tourName = tour.name;
     state.price = tour.price;
-    $("tp-tour").value = tour.name + " — " + TOURS[state.location].name;
+    state.groupDiscount = !!tour.groupDiscount;
+    state.maxTravellers = tour.maxTravellers || 16;
+    var guestsInput = $("tp-guests");
+    guestsInput.max = state.maxTravellers;
+    $("tp-guests-note").hidden = !state.groupDiscount;
+    if (Number(guestsInput.value) > state.maxTravellers) {
+      guestsInput.value = state.maxTravellers;
+    }
+    $("tp-tour").value = tour.name + " — " + TOURS[LOCATION].name;
     $("tour-purchase-form").hidden = false;
     $("purchase-hint").hidden = true;
+    syncFromInputs();
     renderTours();
-    renderSummary();
     $("purchase-section").scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  function selectLocation(loc) {
-    state.location = loc;
-    state.tourId = "";
-    state.tourName = "";
-    state.price = 0;
-    document.querySelectorAll(".location-tab").forEach(function (tab) {
-      var active = tab.dataset.location === loc;
-      tab.classList.toggle("location-tab--active", active);
-      tab.setAttribute("aria-selected", active ? "true" : "false");
-    });
-    $("tour-purchase-form").hidden = true;
-    $("purchase-hint").hidden = false;
-    renderTours();
-    renderSummary();
   }
 
   function showError(input, msg) {
@@ -149,6 +207,12 @@
       } else if (input.type === "number" && Number(val) < 1) {
         showError(input, "At least 1 traveller.");
         valid = false;
+      } else if (input.type === "number" && Number(val) > state.maxTravellers) {
+        showError(input, "This tour takes at most " + state.maxTravellers + " travellers.");
+        valid = false;
+      } else if (input.type === "date" && val < minDateStr()) {
+        showError(input, "Tours must be booked at least " + MIN_LEAD_DAYS + " days in advance.");
+        valid = false;
       }
     });
     if (!state.tourId) valid = false;
@@ -169,7 +233,8 @@
 
   function syncFromInputs() {
     state.date = $("tp-date").value;
-    state.travellers = Math.max(Number($("tp-guests").value) || 1, 1);
+    var guests = Number($("tp-guests").value) || 1;
+    state.travellers = Math.min(Math.max(guests, 1), state.maxTravellers);
     var pay = document.querySelector('input[name="paymentOption"]:checked');
     state.paymentOption = pay ? pay.value : "reserve";
     $("tp-submit").textContent = state.paymentOption === "paynow"
@@ -186,12 +251,12 @@
          server recomputes the charge; replace with a dedicated tour-checkout
          function when payments are wired up. */
       var payload = {
-        location: TOURS[state.location].hostelLocation,
+        location: TOURS[LOCATION].hostelLocation,
         roomType: "Tour: " + state.tourName,
         checkIn: state.date,
         checkOut: state.date,
         guests: state.travellers,
-        subtotal: t.base,
+        subtotal: round2(t.base - t.group),
         paymentOption: "prepay",
         guest: {
           name: $("tp-name").value.trim(),
@@ -199,7 +264,9 @@
           phone: $("tp-phone").value.trim()
         },
         specialRequests: "Tour purchase via tours page. Guest discount: " +
-          (state.guestDiscount ? "5%" : "none") + ". Advertised total: " + money(t.total)
+          (state.guestDiscount ? "5%" : "none") +
+          (t.group > 0 ? ". Group discount: -" + money(t.group) : "") +
+          ". Advertised total: " + money(t.total)
       };
       fetch("/.netlify/functions/create-checkout-session", {
         method: "POST",
@@ -226,10 +293,11 @@
         name: $("tp-name").value.trim(),
         email: $("tp-email").value.trim(),
         phone: $("tp-phone").value.trim(),
-        tour: state.tourName + " — " + TOURS[state.location].name,
+        tour: state.tourName + " — " + TOURS[LOCATION].name,
         guests: state.travellers,
         date: state.date,
         message: "Reserved via tours page. Total due at desk: " + money(t.total) +
+          (t.group > 0 ? " (30% group discount: -" + money(t.group) + ")" : "") +
           (state.guestDiscount ? " (5% guest discount applied)" : "")
       })
     })
@@ -245,16 +313,25 @@
   function initFromUrl() {
     var params = new URLSearchParams(window.location.search);
     state.guestDiscount = params.get("discount") === "guest";
-    var loc = params.get("location");
-    selectLocation(TOURS[loc] ? loc : "ethiopia");
     var tourId = params.get("tour");
     if (tourId) {
-      var match = currentTours().filter(function (t) { return t.id === tourId; })[0];
+      var match = findTour(tourId);
       if (match) selectTour(match);
     }
+    renderSummary();
   }
 
   document.addEventListener("DOMContentLoaded", function () {
+    var dateInput = $("tp-date");
+    dateInput.min = minDateStr();
+
+    document.querySelectorAll("#tour-modal [data-close-modal]").forEach(function (el) {
+      el.addEventListener("click", closeModal);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !$("tour-modal").hidden) closeModal();
+    });
+
     fetch("data/tours.json")
       .then(function (res) {
         if (!res.ok) throw new Error("Failed to load tours");
@@ -262,9 +339,7 @@
       })
       .then(function (data) {
         TOURS = data;
-        document.querySelectorAll(".location-tab").forEach(function (tab) {
-          tab.addEventListener("click", function () { selectLocation(tab.dataset.location); });
-        });
+        renderTours();
         $("tour-purchase-form").addEventListener("input", syncFromInputs);
         $("tour-purchase-form").addEventListener("change", syncFromInputs);
         $("tour-purchase-form").addEventListener("submit", function (e) {
