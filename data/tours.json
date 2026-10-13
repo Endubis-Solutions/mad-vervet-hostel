@@ -17,11 +17,10 @@
           "Important information: Danakil is an extremely hot and remote destination. The itinerary depends on road conditions, volcanic activity, permits and local security advice. The Erta Ale lava lake is not guaranteed to be visible, and the final itinerary must be confirmed with an experienced local operator.",
           "Note: we are happy to help you book a flight ticket."
         ],
-        "image": "images/hero-party.jpg",
+        "image": "images/MV Images/tours/Denakil_02.jpg",
         "images": [
-          "images/hero-party.jpg",
-          "images/hero-group.jpg",
-          "images/addis-ababa-sign.jpg"
+          "images/MV Images/tours/Denakil_02.jpg",
+          "images/MV Images/tours/Denakil_03.jpg"
         ]
       },
       {
@@ -39,11 +38,11 @@
           "Perfect for solo travellers, couples, small groups, history lovers, culture enthusiasts and first-time visitors to Ethiopia.",
           "✨ Walk through history. Discover the soul of Ethiopia."
         ],
-        "image": "images/addis-ababa-sign.jpg",
+        "image": "images/MV Images/tours/Lalibela_01.jpg",
         "images": [
-          "images/addis-ababa-sign.jpg",
-          "images/hero-lounge.jpg",
-          "images/hero-group.jpg"
+          "images/MV Images/tours/Lalibela_01.jpg",
+          "images/MV Images/tours/Lalibela_02.jpg",
+          "images/MV Images/tours/Lalibela_03.jpg"
         ]
       },
       {
@@ -62,11 +61,11 @@
           "Perfect for solo travellers, couples, small groups, culture lovers and adventure travellers.",
           "✨ Come for the hyenas. Stay for the magic of Harar."
         ],
-        "image": "images/hero-lounge.jpg",
+        "image": "images/MV Images/tours/Harar_01.jpg",
         "images": [
-          "images/hero-lounge.jpg",
-          "images/hero-party.jpg",
-          "images/addis-ababa-sign.jpg"
+          "images/MV Images/tours/Harar_01.jpg",
+          "images/MV Images/tours/Harar_02.jpg",
+          "images/MV Images/tours/Harar_03.jpg"
         ]
       },
       {
@@ -84,11 +83,11 @@
           "Perfect for nature lovers, culture enthusiasts, couples, solo travellers, small groups and adventure seekers.",
           "✨ From crocodile-rich lakes to mountain villages — discover southern Ethiopia with Mad Vervet: travel deeper, experience more."
         ],
-        "image": "images/hero-group.jpg",
+        "image": "images/MV Images/tours/Arbaminch_01.jpg",
         "images": [
-          "images/hero-group.jpg",
-          "images/hero-party.jpg",
-          "images/hero-lounge.jpg"
+          "images/MV Images/tours/Arbaminch_01.jpg",
+          "images/MV Images/tours/Arbaminch_02.jpg",
+          "images/MV Images/tours/Arbaminch_03.jpg"
         ]
       },
       {
@@ -110,11 +109,11 @@
           "Transport and a local guide included; runs with 1–3 travellers.",
           "Group deal: every additional guest gets 30% off (up to 3 people per tour)."
         ],
-        "image": "images/addis-ababa-sign.jpg",
+        "image": "images/MV Images/tours/Addisababa_01.jpg",
         "images": [
-          "images/addis-ababa-sign.jpg",
-          "images/hero-group.jpg",
-          "images/hero-lounge.jpg"
+          "images/MV Images/tours/Addisababa_01.jpg",
+          "images/MV Images/tours/Addisababa_02.jpg",
+          "images/MV Images/tours/Addisababa_03.jpg"
         ]
       }
     ]

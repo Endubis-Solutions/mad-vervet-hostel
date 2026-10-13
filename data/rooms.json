@@ -12,8 +12,8 @@
         "unitLabel": "bed",
         "maxUnits": 8,
         "images": [
-          { "src": "images/hero-group.jpg", "alt": "Mixed dorm with bunk beds" },
-          { "src": "images/hero-lounge.jpg", "alt": "Dorm lounge area" }
+          { "src": "images/MV Images/8-bed mixed Dorm _01.JPG", "alt": "8-bed mixed dorm en-suite with bunk beds" },
+          { "src": "images/MV Images/8-bed mixed Dorm _02.JPG", "alt": "8-bed mixed dorm en-suite, second view" }
         ]
       },
       {
@@ -26,8 +26,8 @@
         "unitLabel": "bed",
         "maxUnits": 8,
         "images": [
-          { "src": "images/hero-group.jpg", "alt": "Mixed dorm with bunk beds" },
-          { "src": "images/hero-party.jpg", "alt": "Hostel common room" }
+          { "src": "images/MV Images/8-bed mixed Dorm _01.JPG", "alt": "8-bed mixed dorm with bunk beds" },
+          { "src": "images/MV Images/8-bed mixed Dorm _02.JPG", "alt": "8-bed mixed dorm, second view" }
         ]
       },
       {
@@ -40,8 +40,8 @@
         "unitLabel": "bed",
         "maxUnits": 6,
         "images": [
-          { "src": "images/hero-lounge.jpg", "alt": "Female dorm" },
-          { "src": "images/hero-group.jpg", "alt": "Dorm detail" }
+          { "src": "images/MV Images/6-bed Female Dorm _01.JPG", "alt": "6-bed female-only dorm" },
+          { "src": "images/MV Images/6-bed Female Dorm _02.JPG", "alt": "6-bed female dorm, second view" }
         ]
       },
       {
@@ -55,8 +55,7 @@
         "maxUnits": 2,
         "maxOccupancy": 1,
         "images": [
-          { "src": "images/hero-lounge.jpg", "alt": "Private single room" },
-          { "src": "images/addis-ababa-sign.jpg", "alt": "Room entrance" }
+          { "src": "images/MV Images/Private room_01.JPG", "alt": "Private single room" }
         ]
       },
       {
@@ -71,8 +70,7 @@
         "maxOccupancy": 2,
         "occupancyPriced": true,
         "images": [
-          { "src": "images/hero-lounge.jpg", "alt": "Private double room" },
-          { "src": "images/hero-group.jpg", "alt": "Room seating area" }
+          { "src": "images/MV Images/Private room_01.JPG", "alt": "Private room" }
         ]
       }
     ]

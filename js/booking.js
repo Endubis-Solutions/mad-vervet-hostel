@@ -38,14 +38,14 @@
   /* Fallback nightly rates, used ONLY when the CMS pricing API has no rate
      for a room (CMS pricing always wins when present — see resolveRate()).
      Dorms: { bed } per guest per night. Private: { single, double } by
-     occupancy — Private Room $20 (1 guest) / $30 (2 guests), Single Room $19. */
+     occupancy — Private Room $20 (1 guest) / $25 (2 guests), Single Room $17. */
   var FALLBACK_RATES = {
     "addis-ababa": {
-      "mixed-dorm-ensuite-8": { bed: 12 },
-      "mixed-dorm-8": { bed: 10 },
-      "female-dorm-6": { bed: 12 },
-      "private-single": { single: 19 },
-      "private-double": { single: 20, double: 30 }
+      "mixed-dorm-ensuite-8": { bed: 10 },
+      "mixed-dorm-8": { bed: 9 },
+      "female-dorm-6": { bed: 10 },
+      "private-single": { single: 17 },
+      "private-double": { single: 20, double: 25 }
     },
     nairobi: {
       "female-dorm-4": { bed: 11 },
