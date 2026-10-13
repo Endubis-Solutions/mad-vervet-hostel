@@ -76,5 +76,83 @@
         "image": "images/addis-ababa-sign.jpg"
       }
     ]
+  },
+  "kenya": {
+    "name": "Kenya",
+    "hostelLocation": "nairobi",
+    "tours": [
+      {
+        "id": "maasai-mara-safari",
+        "name": "Maasai Mara Safari",
+        "duration": "3 days / 2 nights",
+        "price": 450,
+        "description": "The big one — three days in the Maasai Mara chasing lions, elephants and (in season) the Great Migration, with nights in a tented camp.",
+        "details": [
+          "Daily game drives in a 4x4 safari van with an experienced driver-guide.",
+          "Two nights in a tented camp inside the reserve — all meals included.",
+          "Optional Maasai village visit and sunrise balloon ride (extra, bookable on site).",
+          "Departs Nairobi early on day one; bring binoculars, layers and a camera with zoom."
+        ],
+        "image": "images/hero-group.jpg"
+      },
+      {
+        "id": "nairobi-national-park",
+        "name": "Nairobi National Park Safari",
+        "duration": "Half day",
+        "price": 120,
+        "description": "Wildlife against the city skyline — rhinos, lions and giraffes just minutes from the hostel, with a morning game drive and breakfast stop.",
+        "details": [
+          "Early-morning game drive in Nairobi National Park — the world's only national park inside a capital city.",
+          "Good chances of black rhino, lion, buffalo, giraffe and zebra.",
+          "Includes park entry fees, transport from the hostel and a guide.",
+          "Back by early afternoon — pairs well with the Giraffe Centre trip the next day."
+        ],
+        "image": "images/nairobi-lounge.jpg"
+      },
+      {
+        "id": "giraffe-centre-karen",
+        "name": "Giraffe Centre & Karen Blixen",
+        "duration": "Half day",
+        "price": 65,
+        "description": "Feed endangered Rothschild giraffes from a raised platform, then step into Out of Africa at the Karen Blixen Museum.",
+        "details": [
+          "Hand-feed giraffes at the Giraffe Centre — yes, the kiss is optional.",
+          "Guided visit to the Karen Blixen Museum, the farmhouse from Out of Africa.",
+          "Includes transport from the hostel, entrance fees and a local guide.",
+          "Runs mornings or afternoons; great half-day add-on."
+        ],
+        "image": "images/hero-lounge.jpg"
+      },
+      {
+        "id": "lake-nakuru-naivasha",
+        "name": "Lake Nakuru & Naivasha",
+        "duration": "2 days / 1 night",
+        "price": 220,
+        "description": "Rift Valley lakes, flamingos and a boat ride past hippos — an easy overnight escape from Nairobi into the Great Rift Valley.",
+        "details": [
+          "Game drive at Lake Nakuru National Park — rhinos, flamingos and Rift Valley viewpoints.",
+          "Boat safari on Lake Naivasha among hippos, with a walking tour on Crescent Island.",
+          "One night in a lakeside lodge with breakfast and dinner included.",
+          "Includes 4x4 transport from Nairobi, guide, park and boat fees."
+        ],
+        "image": "images/hero-party.jpg"
+      },
+      {
+        "id": "nairobi-city-tour",
+        "name": "Nairobi City Tour",
+        "duration": "Full day",
+        "price": 70,
+        "groupDiscount": true,
+        "maxTravellers": 3,
+        "description": "Get your bearings in Nairobi — the National Museum, City Market, Uhuru Park and a proper nyama choma lunch, all in one day.",
+        "details": [
+          "See the National Museum, browse the Maasai Market and take in the buzz of downtown Nairobi.",
+          "Includes a nyama choma (grilled meat) lunch at a local favourite.",
+          "Transport and a local guide included; runs with 1–3 travellers.",
+          "Group deal: every additional guest gets 30% off (up to 3 people per tour)."
+        ],
+        "image": "images/hero-group.jpg"
+      }
+    ]
   }
 }

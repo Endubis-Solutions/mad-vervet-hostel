@@ -1,5 +1,6 @@
-/* tours.js — tour cards, details modal and purchase flow for tours.html.
-   Tour data is loaded from data/tours.json (all tours depart from Addis Ababa).
+/* tours.js — country tabs, tour cards, details modal and purchase flow for
+   tours.html. Tour data is loaded from data/tours.json, keyed by country
+   (ethiopia / kenya); tours depart from the hostel in that country.
    Booking rules:
      - Tours can only be booked at least 3 days in advance (earlier dates are
        blocked on the date picker).
@@ -98,6 +99,38 @@
     return currentTours().filter(function (t) { return t.id === id; })[0];
   }
 
+  function findTourAnywhere(id) {
+    var found = null;
+    Object.keys(TOURS || {}).some(function (loc) {
+      found = TOURS[loc].tours.filter(function (t) { return t.id === id; })[0];
+      if (found) LOCATION = loc;
+      return !!found;
+    });
+    return found;
+  }
+
+  function clearSelection() {
+    state.tourId = "";
+    state.tourName = "";
+    state.price = 0;
+    state.groupDiscount = false;
+    state.maxTravellers = 16;
+    $("tour-purchase-form").hidden = true;
+    $("purchase-hint").hidden = false;
+  }
+
+  function selectLocation(loc) {
+    if (!TOURS[loc]) loc = "ethiopia";
+    LOCATION = loc;
+    document.querySelectorAll(".location-tab").forEach(function (tab) {
+      var active = tab.dataset.location === loc;
+      tab.classList.toggle("location-tab--active", active);
+      tab.setAttribute("aria-selected", active ? "true" : "false");
+    });
+    if (state.tourId && !findTour(state.tourId)) clearSelection();
+    renderTours();
+  }
+
   /* --- Details modal --- */
   var lastFocused = null;
 
@@ -162,6 +195,8 @@
     state.maxTravellers = tour.maxTravellers || 16;
     var guestsInput = $("tp-guests");
     guestsInput.max = state.maxTravellers;
+    $("tp-guests-note").textContent = tour.name + ": max " + state.maxTravellers +
+      " travellers — every additional guest gets 30% off.";
     $("tp-guests-note").hidden = !state.groupDiscount;
     if (Number(guestsInput.value) > state.maxTravellers) {
       guestsInput.value = state.maxTravellers;
@@ -315,8 +350,11 @@
     state.guestDiscount = params.get("discount") === "guest";
     var tourId = params.get("tour");
     if (tourId) {
-      var match = findTour(tourId);
-      if (match) selectTour(match);
+      var match = findTourAnywhere(tourId);
+      if (match) {
+        selectLocation(LOCATION);
+        selectTour(match);
+      }
     }
     renderSummary();
   }
@@ -339,7 +377,10 @@
       })
       .then(function (data) {
         TOURS = data;
-        renderTours();
+        document.querySelectorAll(".location-tab").forEach(function (tab) {
+          tab.addEventListener("click", function () { selectLocation(tab.dataset.location); });
+        });
+        selectLocation(new URLSearchParams(window.location.search).get("location") || "ethiopia");
         $("tour-purchase-form").addEventListener("input", syncFromInputs);
         $("tour-purchase-form").addEventListener("change", syncFromInputs);
         $("tour-purchase-form").addEventListener("submit", function (e) {
