@@ -56,9 +56,9 @@
       "private-double": { single: 20, double: 25 }
     },
     nairobi: {
-      "female-dorm-4": { bed: 11 },
-      "mixed-dorm-4": { bed: 9 },
-      "private-double": { single: 20, double: 30 }
+      "female-dorm-4": { bed: 13 },
+      "mixed-dorm-4": { bed: 11 },
+      "private-double": { single: 25, double: 38 }
     }
   };
 
@@ -596,7 +596,8 @@
         var ref = ids.join(", ");
         setStatus("Thanks! Your reservation has been received — pay at the property.", true);
         sendConfirmationEmails(ids).finally(function () {
-          window.location.href = "booking-confirmation.html?type=reserve&ref=" + encodeURIComponent(ref);
+          window.location.href = "booking-confirmation.html?type=reserve&ref=" + encodeURIComponent(ref) +
+            "&location=" + encodeURIComponent(state.location);
         });
       })
       .catch(function (err) {

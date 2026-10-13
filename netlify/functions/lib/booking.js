@@ -6,12 +6,14 @@ const LOCATIONS = {
   "addis-ababa": {
     name: "Addis Ababa",
     address: "Downtown Bole, BL_03_552 St, Hayahulet, Addis Ababa, Ethiopia",
-    phone: "+251 923 577 808"
+    phone: "+251 923 577 808",
+    email: "addis@madvervet.com"
   },
   nairobi: {
     name: "Nairobi",
     address: "Lavington neighborhood, Nairobi, Kenya (exact street address shared before arrival)",
-    phone: "+251 923 577 808 (WhatsApp)"
+    phone: "+254 718 340 134 (WhatsApp)",
+    email: "nairobi@madvervet.com"
   }
 };
 
@@ -75,7 +77,9 @@ function guestBody(b, ref) {
   const loc = LOCATIONS[b.location] || {};
   return "<p>Hi " + ((b.guest && b.guest.name) || "traveller") + ",</p><p><strong>" +
     paymentLine(b) + "</strong></p>" + rows(bookingRows(b, ref)) +
-    "<p><strong>Find us:</strong><br>" + (loc.address || "") + "<br>Phone: " + (loc.phone || "") + "</p>" +
+    "<p><strong>Find us:</strong><br>" + (loc.address || "") +
+    "<br>WhatsApp: " + (loc.phone || "") +
+    "<br>Email: " + (loc.email || "info@madvervet.com") + "</p>" +
     '<p>Cancellation policy: <a href="https://madvervet.com/terms.html">madvervet.com/terms.html</a></p>' +
     "<p>See you soon — the Mad Vervet crew</p>";
 }

@@ -34,8 +34,8 @@
           <p id="conf-ref-line" hidden>Your booking reference: <strong id="conf-ref"></strong></p>
           <p id="conf-detail"></p>
           <p>A confirmation email is on its way to you. Questions? Email
-            <a href="mailto:info@madvervet.com">info@madvervet.com</a> or call
-            <a href="tel:+251923577808">+251 923 577 808</a>.</p>
+            <a id="conf-email" href="mailto:info@madvervet.com">info@madvervet.com</a> or WhatsApp
+            <a id="conf-whatsapp" href="https://wa.me/251923577808" target="_blank" rel="noopener">+251 923 577 808</a>.</p>
           <p>
             <a class="btn" href="tours.html">Book a Tour</a>
             <a class="btn btn--pink" href="index.html">Back to Home</a>
@@ -64,6 +64,19 @@
       var params = new URLSearchParams(window.location.search);
       var type = params.get("type");
       var ref = params.get("ref");
+      var CONTACTS = {
+        "addis-ababa": { email: "addis@madvervet.com", wa: "251923577808", waLabel: "+251 923 577 808" },
+        "nairobi": { email: "nairobi@madvervet.com", wa: "254718340134", waLabel: "+254 718 340 134" }
+      };
+      var contact = CONTACTS[params.get("location")];
+      if (contact) {
+        var emailLink = document.getElementById("conf-email");
+        emailLink.textContent = contact.email;
+        emailLink.href = "mailto:" + contact.email;
+        var waLink = document.getElementById("conf-whatsapp");
+        waLink.textContent = contact.waLabel;
+        waLink.href = "https://wa.me/" + contact.wa;
+      }
       var heading = document.getElementById("conf-heading");
       var detail = document.getElementById("conf-detail");
       if (ref) {
