@@ -134,6 +134,43 @@
   /* --- Details modal --- */
   var lastFocused = null;
 
+  /* --- Slideshow (details modal) --- */
+  var slides = { images: [], index: 0 };
+
+  function renderSlide() {
+    var wrap = $("modal-slideshow");
+    var total = slides.images.length;
+    wrap.hidden = total === 0;
+    if (!total) return;
+    var img = $("slideshow-image");
+    img.src = slides.images[slides.index];
+    img.alt = $("modal-tour-name").textContent + " — photo " + (slides.index + 1) + " of " + total;
+    $("slideshow-counter").textContent = (slides.index + 1) + " / " + total;
+    var multi = total > 1;
+    $("slideshow-prev").hidden = !multi;
+    $("slideshow-next").hidden = !multi;
+    var dots = $("slideshow-dots");
+    dots.hidden = !multi;
+    dots.innerHTML = slides.images.map(function (_, i) {
+      return "<button type=\"button\" class=\"slideshow-dot" +
+        (i === slides.index ? " slideshow-dot--active" : "") +
+        "\" data-slide=\"" + i + "\" aria-label=\"Go to image " + (i + 1) + "\"></button>";
+    }).join("");
+  }
+
+  function showSlide(i) {
+    var total = slides.images.length;
+    if (!total) return;
+    slides.index = (i + total) % total;
+    renderSlide();
+  }
+
+  function setupSlideshow(tour) {
+    slides.images = (tour.images && tour.images.length) ? tour.images : (tour.image ? [tour.image] : []);
+    slides.index = 0;
+    renderSlide();
+  }
+
   function openModal(tour) {
     $("modal-tour-name").textContent = tour.name;
     $("modal-tour-duration").textContent = tour.duration;
@@ -142,6 +179,7 @@
     $("modal-tour-details").innerHTML = (tour.details || []).map(function (d) {
       return "<li>" + d + "</li>";
     }).join("");
+    setupSlideshow(tour);
     $("modal-book-btn").onclick = function () {
       closeModal();
       selectTour(tour);
@@ -368,6 +406,12 @@
     });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && !$("tour-modal").hidden) closeModal();
+    });
+    $("slideshow-prev").addEventListener("click", function () { showSlide(slides.index - 1); });
+    $("slideshow-next").addEventListener("click", function () { showSlide(slides.index + 1); });
+    $("slideshow-dots").addEventListener("click", function (e) {
+      var dot = e.target.closest("[data-slide]");
+      if (dot) showSlide(Number(dot.dataset.slide));
     });
 
     fetch("data/tours.json")

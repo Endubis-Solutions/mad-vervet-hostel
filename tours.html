@@ -107,6 +107,15 @@
       <button type="button" class="modal-close" data-close-modal aria-label="Close details">&times;</button>
       <h2 id="modal-tour-name"></h2>
       <p><span class="tag" id="modal-tour-duration"></span> <strong id="modal-tour-price"></strong></p>
+      <div class="slideshow" id="modal-slideshow" hidden>
+        <img id="slideshow-image" alt="">
+        <button type="button" class="slideshow-btn slideshow-btn--prev" id="slideshow-prev" aria-label="Previous image">&#8592;</button>
+        <button type="button" class="slideshow-btn slideshow-btn--next" id="slideshow-next" aria-label="Next image">&#8594;</button>
+        <div class="slideshow-footer">
+          <div class="slideshow-dots" id="slideshow-dots"></div>
+          <span class="slideshow-counter" id="slideshow-counter"></span>
+        </div>
+      </div>
       <p id="modal-tour-description"></p>
       <ul id="modal-tour-details"></ul>
       <p class="price-note">All tours must be booked at least 3 days in advance.</p>

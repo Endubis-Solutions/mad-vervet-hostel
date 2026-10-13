@@ -15,7 +15,12 @@
           "Nights are spent camping under the stars — basic conditions, unforgettable views.",
           "Departs with a minimum of 2 travellers; bring sun protection, sturdy shoes and a sense of adventure."
         ],
-        "image": "images/hero-party.jpg"
+        "image": "images/hero-party.jpg",
+        "images": [
+          "images/hero-party.jpg",
+          "images/hero-group.jpg",
+          "images/addis-ababa-sign.jpg"
+        ]
       },
       {
         "id": "lalibela-churches",
@@ -29,21 +34,35 @@
           "One night in a local hotel with breakfast included.",
           "Dress modestly for the churches — shoulders and knees covered; shoes come off at the door."
         ],
-        "image": "images/addis-ababa-sign.jpg"
+        "image": "images/addis-ababa-sign.jpg",
+        "images": [
+          "images/addis-ababa-sign.jpg",
+          "images/hero-lounge.jpg",
+          "images/hero-group.jpg"
+        ]
       },
       {
         "id": "harar-city-tour",
-        "name": "Harar City Tour",
-        "duration": "Full day",
-        "price": 80,
-        "description": "Wander the walled old town of Harar — 368 alleyways, colourful markets, coffee at the source and the famous hyena feeders at night.",
+        "name": "Harar Experience",
+        "duration": "3 days / 3 nights",
+        "price": 250,
+        "description": "Explore the ancient walled city of Harar — one of Ethiopia's most unique destinations. Stay inside the historic Jegol (old city) in a traditional Harari house and experience Harar from the heart of the old city.",
         "details": [
-          "Guided walk through the UNESCO-listed Jugol old town, its markets and traditional Harari houses.",
-          "Coffee tasting in the region where coffee was first cultivated.",
-          "Evening visit to the hyena men — watch wild hyenas fed by hand, a Harar tradition.",
-          "Includes a local guide and entrance fees."
+          "Day 1 — Arrive in Harar: travel from Addis Ababa, check in and settle into your traditional Harari house inside Jegol, explore the colourful streets and traditional houses, take a sunset walk through the old city, and end the evening with the famous Harar hyenas. 🐾",
+          "Day 2 — Discover Harar: guided walking tour of Jegol — experience life inside a traditional Harari house, the Harari houses and architecture, the market and colourful streets, historic gates and mosques, the Arthur Rimbaud House and a traditional Harari coffee experience. Free evening to explore, eat and enjoy the city.",
+          "Day 3 — Harar → Addis Ababa: relaxed morning inside Jegol, enjoy your last walk through the old city, souvenir shopping, then travel back. Free day to explore by yourself.",
+          "Package includes: 3 nights' stay in a traditional Harari house inside Jegol with breakfast, local guide, Harar/Jegol city tour, hyena experience and traditional Harari coffee experience.",
+          "Not included: meals except breakfast, personal expenses, drinks.",
+          "Special assistance: we can help you book a local bus or flight to Harar.",
+          "Perfect for solo travellers, couples, small groups, culture lovers and adventure travellers.",
+          "✨ Come for the hyenas. Stay for the magic of Harar."
         ],
-        "image": "images/hero-lounge.jpg"
+        "image": "images/hero-lounge.jpg",
+        "images": [
+          "images/hero-lounge.jpg",
+          "images/hero-party.jpg",
+          "images/addis-ababa-sign.jpg"
+        ]
       },
       {
         "id": "omo-valley-cultural",
@@ -57,7 +76,12 @@
           "Includes transport, guide, accommodation and park/community fees.",
           "A long overland journey — expect early starts, rough roads and huge rewards."
         ],
-        "image": "images/hero-group.jpg"
+        "image": "images/hero-group.jpg",
+        "images": [
+          "images/hero-group.jpg",
+          "images/hero-party.jpg",
+          "images/hero-lounge.jpg"
+        ]
       },
       {
         "id": "addis-city-tour",
@@ -73,7 +97,12 @@
           "Transport and a local guide included; runs with 1–3 travellers.",
           "Group deal: every additional guest gets 30% off (up to 3 people per tour)."
         ],
-        "image": "images/addis-ababa-sign.jpg"
+        "image": "images/addis-ababa-sign.jpg",
+        "images": [
+          "images/addis-ababa-sign.jpg",
+          "images/hero-group.jpg",
+          "images/hero-lounge.jpg"
+        ]
       }
     ]
   },
@@ -93,7 +122,12 @@
           "Optional Maasai village visit and sunrise balloon ride (extra, bookable on site).",
           "Departs Nairobi early on day one; bring binoculars, layers and a camera with zoom."
         ],
-        "image": "images/hero-group.jpg"
+        "image": "images/hero-group.jpg",
+        "images": [
+          "images/hero-group.jpg",
+          "images/nairobi-lounge.jpg",
+          "images/hero-party.jpg"
+        ]
       },
       {
         "id": "nairobi-national-park",
@@ -107,7 +141,12 @@
           "Includes park entry fees, transport from the hostel and a guide.",
           "Back by early afternoon — pairs well with the Giraffe Centre trip the next day."
         ],
-        "image": "images/nairobi-lounge.jpg"
+        "image": "images/nairobi-lounge.jpg",
+        "images": [
+          "images/nairobi-lounge.jpg",
+          "images/hero-group.jpg",
+          "images/hero-lounge.jpg"
+        ]
       },
       {
         "id": "giraffe-centre-karen",
@@ -121,7 +160,12 @@
           "Includes transport from the hostel, entrance fees and a local guide.",
           "Runs mornings or afternoons; great half-day add-on."
         ],
-        "image": "images/hero-lounge.jpg"
+        "image": "images/hero-lounge.jpg",
+        "images": [
+          "images/hero-lounge.jpg",
+          "images/nairobi-lounge.jpg",
+          "images/hero-group.jpg"
+        ]
       },
       {
         "id": "lake-nakuru-naivasha",
@@ -135,7 +179,12 @@
           "One night in a lakeside lodge with breakfast and dinner included.",
           "Includes 4x4 transport from Nairobi, guide, park and boat fees."
         ],
-        "image": "images/hero-party.jpg"
+        "image": "images/hero-party.jpg",
+        "images": [
+          "images/hero-party.jpg",
+          "images/hero-group.jpg",
+          "images/nairobi-lounge.jpg"
+        ]
       },
       {
         "id": "nairobi-city-tour",
@@ -151,7 +200,12 @@
           "Transport and a local guide included; runs with 1–3 travellers.",
           "Group deal: every additional guest gets 30% off (up to 3 people per tour)."
         ],
-        "image": "images/hero-group.jpg"
+        "image": "images/hero-group.jpg",
+        "images": [
+          "images/hero-group.jpg",
+          "images/nairobi-lounge.jpg",
+          "images/hero-party.jpg"
+        ]
       }
     ]
   }

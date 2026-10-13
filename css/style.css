@@ -717,5 +717,53 @@ textarea { min-height: 130px; resize: vertical; }
 .modal-dialog ul { padding-left: 1.2rem; margin-bottom: 1rem; }
 .modal-dialog li { margin-bottom: 0.4rem; }
 
+/* Tour slideshow (details modal) */
+.slideshow { margin-bottom: 1rem; }
+.slideshow img {
+  display: block;
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border: 3px solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+.slideshow { position: relative; }
+.slideshow-btn {
+  position: absolute;
+  top: 130px;
+  transform: translateY(-50%);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--white);
+  width: 2.2rem;
+  height: 2.2rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.slideshow-btn:hover { background: var(--sun); }
+.slideshow-btn--prev { left: 0.6rem; }
+.slideshow-btn--next { right: 0.6rem; }
+.slideshow-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.6rem;
+  min-height: 1rem;
+}
+.slideshow-dots { display: flex; gap: 0.4rem; }
+.slideshow-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  padding: 0;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--white);
+  cursor: pointer;
+}
+.slideshow-dot--active { background: var(--pop-pink); }
+.slideshow-counter { margin-left: auto; font-size: 0.8rem; font-weight: 600; }
+
 /* Blog card titles: 2pt smaller than the default h2 */
 .blog-card h2 { font-size: calc(clamp(1.6rem, 5vw, 2.6rem) - 2pt); }
