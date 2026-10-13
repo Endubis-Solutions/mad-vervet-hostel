@@ -1,6 +1,6 @@
 /* Booking-shaped helpers: locations, reference IDs, and the two booking emails
    (hostel notification + guest confirmation) shared by reserve/prepay/webhook. */
-const { sendEmail, shell, rows, hostelEmail } = require("./email");
+const { sendEmail, shell, rows, hostelEmail, FROM_BOOKING } = require("./email");
 
 const LOCATIONS = {
   "addis-ababa": {
@@ -83,12 +83,13 @@ function guestBody(b, ref) {
 async function sendBookingEmails(booking, ref) {
   const subject = "Booking " + ref + " — " + booking.roomType + " (" + booking.checkIn + " → " + booking.checkOut + ")";
   await sendEmail({
+    from: FROM_BOOKING,
     to: hostelEmail(),
     subject: "[Mad Vervet] New " + booking.paymentOption + " booking " + ref,
     html: shell("New booking: " + ref, rows(bookingRows(booking, ref)))
   });
   if (booking.guest && booking.guest.email) {
-    await sendEmail({ to: booking.guest.email, subject, html: shell("Booking confirmed — " + ref, guestBody(booking, ref)) });
+    await sendEmail({ from: FROM_BOOKING, to: booking.guest.email, subject, html: shell("Booking confirmed — " + ref, guestBody(booking, ref)) });
   }
 }
 

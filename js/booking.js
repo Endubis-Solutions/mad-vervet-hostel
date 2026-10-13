@@ -16,6 +16,9 @@
          201 = created, 409 = just sold out, 400 = bad input.
    Online payment is not connected yet: both payment options create the
    reservation through the API and the guest pays at the property.
+   After a successful PMS booking the confirmation emails (hostel + guest)
+   are sent via /.netlify/functions/send-confirmation — best-effort, a mail
+   failure never blocks the confirmation page.
    PMS outage tolerance: if the availability check fails (API down), the
    booking is submitted anyway; if the booking POST itself fails, the
    reservation falls back to /.netlify/functions/submit-reservation (email)
@@ -574,12 +577,27 @@
     });
   }
 
+  /* After the PMS confirms a booking, send the hostel notification + guest
+     confirmation emails via the send-confirmation function. Best-effort: a
+     failure here must not block the redirect to the confirmation page. */
+  function sendConfirmationEmails(ids) {
+    var payload = buildPayload();
+    payload.refs = ids;
+    return fetch("/.netlify/functions/send-confirmation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).catch(function () { /* email is best-effort — the booking already exists */ });
+  }
+
   function submitBooking() {
     createBookings()
       .then(function (ids) {
         var ref = ids.join(", ");
         setStatus("Thanks! Your reservation has been received — pay at the property.", true);
-        window.location.href = "booking-confirmation.html?type=reserve&ref=" + encodeURIComponent(ref);
+        sendConfirmationEmails(ids).finally(function () {
+          window.location.href = "booking-confirmation.html?type=reserve&ref=" + encodeURIComponent(ref);
+        });
       })
       .catch(function (err) {
         if (err && err.soldOut) {

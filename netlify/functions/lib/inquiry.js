@@ -1,6 +1,6 @@
 /* Shared factory for simple inquiry endpoints (tour / group / contact).
    Sends one notification email to the hostel + one auto-reply to the sender. */
-const { sendEmail, shell, rows, esc, hostelEmail } = require("./email");
+const { sendEmail, shell, rows, esc, hostelEmail, FROM_INQUIRY } = require("./email");
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -29,11 +29,13 @@ function inquiryHandler({ kind, required, labels }) {
     if (err) return json(400, { error: err });
     const pairs = Object.keys(labels).map((k) => [labels[k], data[k] || "—"]);
     await sendEmail({
+      from: FROM_INQUIRY,
       to: hostelEmail(),
       subject: "[Mad Vervet] " + kind + " inquiry from " + data.name,
       html: shell(kind + " inquiry", rows(pairs))
     });
     await sendEmail({
+      from: FROM_INQUIRY,
       to: data.email,
       subject: "Thanks for your " + kind.toLowerCase() + " inquiry — Mad Vervet Hostel",
       html: shell("We got your message",
