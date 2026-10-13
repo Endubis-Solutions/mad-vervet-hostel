@@ -16,6 +16,11 @@
          201 = created, 409 = just sold out, 400 = bad input.
    Online payment is not connected yet: both payment options create the
    reservation through the API and the guest pays at the property.
+   PMS outage tolerance: if the availability check fails (API down), the
+   booking is submitted anyway; if the booking POST itself fails, the
+   reservation falls back to /.netlify/functions/submit-reservation (email)
+   so no booking is lost — staff confirm availability manually. When the
+   check succeeds, unavailable/at-capacity dates are blocked as usual.
    Exposes window.MadVervetBooking so later work (e.g. promo codes) can
    extend pricing without rewriting this file.
    Promo extension point (used by js/discount.js): setPricingHook() registers
@@ -224,7 +229,7 @@
       })
       .catch(function () {
         state.availableUnits = null;
-        if (note) note.textContent = "Couldn't load live availability — showing maximum capacity.";
+        if (note) note.textContent = "Couldn't load live availability — you can still book, and we'll confirm by email.";
         renderGuestsOptions();
         return null;
       });
@@ -537,7 +542,36 @@
         });
       });
     }
-    return chain.then(function () { return ids; });
+    return chain.then(function () { return ids; }, function (err) {
+      if (err && err.bookedCount == null) err.bookedCount = ids.length;
+      throw err;
+    });
+  }
+
+  /* Fallback when the PMS is unreachable: capture the reservation by email
+     via the submit-reservation Netlify function so no booking is lost. Staff
+     confirm availability manually and follow up with the guest. */
+  function submitReservationFallback(bookedCount) {
+    var payload = buildPayload();
+    payload.paymentOption = "reserve"; // the email path is reserve-only
+    payload.specialRequests = (payload.specialRequests ? payload.specialRequests + " " : "") +
+      "[Booking system unreachable — reservation captured by email fallback; please confirm availability manually." +
+      (bookedCount ? " Note: " + bookedCount + " " + plural(payload.unitLabel, bookedCount) +
+        " may already be booked in the PMS before the connection failed." : "") + "]";
+    return fetch("/.netlify/functions/submit-reservation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(function (res) {
+      if (!res.ok) throw new Error("Fallback reservation failed (" + res.status + ")");
+      return res.json();
+    }).then(function (body) {
+      if (body.redirectUrl) {
+        window.location.href = body.redirectUrl;
+      } else {
+        setStatus("Thanks! Your reservation request has been received — we'll confirm by email.", true);
+      }
+    });
   }
 
   function submitBooking() {
@@ -555,7 +589,10 @@
               " may already be booked — contact us before retrying." : ""), false);
           refreshAvailability();
         } else {
-          setStatus(OFFLINE_MSG, false);
+          setStatus("The booking system is unreachable — sending your reservation by email instead…", true);
+          submitReservationFallback(err && err.bookedCount).catch(function () {
+            setStatus(OFFLINE_MSG, false);
+          });
         }
       });
   }
@@ -576,7 +613,8 @@
         submitBooking();
       })
       .catch(function () {
-        setStatus("Couldn't check availability right now — please try again.", false);
+        setStatus("Couldn't check availability right now — submitting your reservation anyway. We'll confirm by email.", true);
+        submitBooking();
       })
       .finally(function () {
         submitBtn.disabled = false;
