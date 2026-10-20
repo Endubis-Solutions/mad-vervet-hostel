@@ -7,19 +7,45 @@
      appliesTo "<location-slug>": valid only for that location.
    usedCount is persisted by writing the JSON file — this works in `netlify dev`
    but NOT in deployed production (read-only filesystem); incrementUsed never
-   throws so a failed write can never break a confirmed booking. */
+   throws so a failed write can never break a confirmed booking.
+   Reads try several candidate paths: Netlify's esbuild bundler does not preserve
+   the repo directory layout, so a single __dirname-relative path misses the
+   included file in production. */
 const fs = require("fs");
 const path = require("path");
 
-const CODES_PATH = path.join(__dirname, "..", "..", "..", "data", "promo-codes.json");
+const CODES_CANDIDATES = [
+  path.join(__dirname, "..", "..", "..", "data", "promo-codes.json"),
+  path.join(process.cwd(), "data", "promo-codes.json"),
+  "/var/task/data/promo-codes.json"
+];
+
+let codesPath = null;
 
 function round2(n) {
   return Math.round(n * 100) / 100;
 }
 
+function findCodesPath() {
+  if (codesPath) return codesPath;
+  for (const p of CODES_CANDIDATES) {
+    try {
+      fs.accessSync(p, fs.constants.R_OK);
+      codesPath = p;
+      return p;
+    } catch (e) { /* try next */ }
+  }
+  return null;
+}
+
 function loadCodes() {
+  const p = findCodesPath();
+  if (!p) {
+    console.warn("Could not find promo-codes.json in:", CODES_CANDIDATES.join(", "));
+    return [];
+  }
   try {
-    return JSON.parse(fs.readFileSync(CODES_PATH, "utf8"));
+    return JSON.parse(fs.readFileSync(p, "utf8"));
   } catch (e) {
     console.warn("Could not read promo-codes.json:", e.message);
     return [];
@@ -71,11 +97,13 @@ function resolvePrepayDiscount(promoCode, location, subtotal) {
    production should move codes to a database/KV store (see README). */
 function incrementUsed(code) {
   try {
+    const p = findCodesPath();
+    if (!p) return;
     const codes = loadCodes();
     const promo = codes.find((c) => c.code === code);
     if (!promo) return;
     promo.usedCount = (promo.usedCount || 0) + 1;
-    fs.writeFileSync(CODES_PATH, JSON.stringify(codes, null, 2) + "\n");
+    fs.writeFileSync(p, JSON.stringify(codes, null, 2) + "\n");
   } catch (e) {
     console.warn("promo usedCount persist failed (read-only fs in production?):", e.message);
   }

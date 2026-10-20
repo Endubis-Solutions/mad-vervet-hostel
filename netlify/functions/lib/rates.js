@@ -7,13 +7,15 @@
      { "single": n, "double": n } private room — double rate when guests >= 2
    "amenities" holds the add-on prices (airportPickup flat, breakfastPerDayPerGuest
    × nights × guests, laundry flat).
-   Updates: edit data/room-rates.json and redeploy (git push). The production
-   functions filesystem is read-only, same constraint as data/promo-codes.json. */
+   Loading: the JSON is require()'d so Netlify's esbuild bundler inlines it into
+   the function bundle (fs.readFileSync + __dirname paths break under esbuild —
+   the bundled layout differs from the repo layout). The fs fallbacks cover
+   nft-style bundling and plain node. Updates: edit data/room-rates.json and
+   redeploy (git push). */
 const fs = require("fs");
 const path = require("path");
 const { round2 } = require("./promo");
 
-const RATES_PATH = path.join(__dirname, "..", "..", "..", "data", "room-rates.json");
 const MAX_GUESTS = 20; // sanity cap — guest count only ever raises the price
 
 let CACHE = null;
@@ -21,11 +23,22 @@ let CACHE = null;
 function loadRates() {
   if (CACHE) return CACHE;
   try {
-    CACHE = JSON.parse(fs.readFileSync(RATES_PATH, "utf8"));
-  } catch (e) {
-    console.warn("Could not read room-rates.json:", e.message);
-    CACHE = null;
+    // eslint-disable-next-line global-require
+    CACHE = require("../../../data/room-rates.json");
+    return CACHE;
+  } catch (e) { /* fall through to fs candidates */ }
+  const candidates = [
+    path.join(__dirname, "..", "..", "..", "data", "room-rates.json"),
+    path.join(process.cwd(), "data", "room-rates.json")
+  ];
+  for (const p of candidates) {
+    try {
+      CACHE = JSON.parse(fs.readFileSync(p, "utf8"));
+      return CACHE;
+    } catch (e) { /* try next */ }
   }
+  console.warn("Could not load room-rates.json from:", candidates.join(", "));
+  CACHE = null;
   return CACHE;
 }
 
