@@ -84,11 +84,17 @@ function guestBody(b, ref) {
     "<p>See you soon — the Mad Vervet crew</p>";
 }
 
+function hostelEmailFor(location) {
+  if (process.env.HOSTEL_NOTIFICATION_EMAIL) return process.env.HOSTEL_NOTIFICATION_EMAIL;
+  const loc = LOCATIONS[location];
+  return (loc && loc.email) || hostelEmail();
+}
+
 async function sendBookingEmails(booking, ref) {
   const subject = "Booking " + ref + " — " + booking.roomType + " (" + booking.checkIn + " → " + booking.checkOut + ")";
   await sendEmail({
     from: FROM_BOOKING,
-    to: hostelEmail(),
+    to: hostelEmailFor(booking.location),
     subject: "[Mad Vervet] New " + booking.paymentOption + " booking " + ref,
     html: shell("New booking: " + ref, rows(bookingRows(booking, ref)))
   });

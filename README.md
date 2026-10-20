@@ -21,7 +21,7 @@ cp .env.example .env   # then fill in real values (never commit .env)
 | `STRIPE_PUBLISHABLE_KEY` | Stripe publishable key — reserved for future client-side Stripe use; not currently referenced by any page. |
 | `STRIPE_WEBHOOK_SECRET` | Signing secret for the `stripe-webhook` function (from `stripe listen` locally, or the Dashboard webhook in prod). |
 | `RESEND_API_KEY` | Resend API key for all outgoing email. If unset, emails are skipped with a warning and requests still succeed. |
-| `HOSTEL_NOTIFICATION_EMAIL` | Inbox that receives booking + inquiry notifications (default fallback: `info@madvervet.com`). |
+| `HOSTEL_NOTIFICATION_EMAIL` | Optional override for the inbox that receives booking + inquiry notifications. If unset, booking notifications route per location (`addis@madvervet.com` / `nairobi@madvervet.com`) and inquiries go to `info@madvervet.com`. |
 | `EMAIL_FROM` | Sender address for outgoing mail. Default: `Mad Vervet Hostel <bookings@madvervet.com>` (requires the verified domain). For dev/testing use `Mad Vervet Hostel <onboarding@resend.dev>` — test mode only delivers to your Resend account email. |
 
 | `ANTHROPIC_API_KEY` | Anthropic API key for the `ai-chat` FAQ function (server-side only). If unset, the function returns a graceful fallback reply pointing to WhatsApp. |
