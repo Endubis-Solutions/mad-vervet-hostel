@@ -666,11 +666,32 @@
       });
   }
 
+  /* Past dates are disabled in the date pickers via the min attribute
+     (local timezone). Check-out's minimum tracks the day after check-in. */
+  function dateISO(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
+  }
+
+  function initDateBounds() {
+    var today = new Date();
+    $("bk-checkin").min = dateISO(today);
+    $("bk-checkout").min = dateISO(new Date(today.getTime() + 86400000));
+  }
+
+  function syncDateBounds() {
+    var checkin = $("bk-checkin").value;
+    if (checkin) {
+      $("bk-checkout").min = dateISO(new Date(new Date(checkin).getTime() + 86400000));
+    }
+  }
+
   function syncFromInputs() {
     var datesChanged = state.checkIn !== $("bk-checkin").value || state.checkOut !== $("bk-checkout").value;
     state.checkIn = $("bk-checkin").value;
     state.checkOut = $("bk-checkout").value;
     if (datesChanged) scheduleAvailabilityRefresh();
+    syncDateBounds();
     state.guests = Number($("bk-guests").value) || 1;
     state.amenities.airportPickup = $("bk-am-airport").checked;
     state.amenities.breakfast = $("bk-am-breakfast").checked;
@@ -709,6 +730,7 @@
       })
       .then(function (data) {
         ROOMS = data;
+        initDateBounds();
         document.querySelectorAll(".location-tab").forEach(function (tab) {
           tab.addEventListener("click", function () { selectLocation(tab.dataset.location); });
         });

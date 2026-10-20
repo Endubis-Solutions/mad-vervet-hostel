@@ -107,6 +107,20 @@
         ]
       },
       {
+        "id": "mixed-dorm-4-b",
+        "type": "4 Bed Mixed Dorm",
+        "category": "dorm",
+        "cmsCategory": "4 Bed Mixed Dorm",
+        "cmsRooms": [],
+        "note": "Shared dorm",
+        "unitLabel": "bed",
+        "maxUnits": 4,
+        "images": [
+          { "src": "images/nairobi-lounge.jpg", "alt": "Mixed dorm with bunk beds" },
+          { "src": "images/hero-group.jpg", "alt": "Dorm lounge area" }
+        ]
+      },
+      {
         "id": "private-double",
         "type": "Private Room",
         "category": "private",
