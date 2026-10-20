@@ -56,7 +56,8 @@ exports.handler = async (event) => {
     const booking = bookingFromMetadata(session.metadata);
     booking.amountChargedNow = (session.amount_total || 0) / 100;
     if (booking.promoDiscountApplied) incrementUsed(booking.promoCode);
-    await sendBookingEmails(booking, session.id);
+    await sendBookingEmails(booking, session.id,
+      "Paid online via Stripe (session " + session.id + "). Not entered in the PMS automatically — please add this booking manually.");
   }
   return json(200, { received: true });
 };

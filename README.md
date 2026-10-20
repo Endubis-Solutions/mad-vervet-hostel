@@ -84,6 +84,20 @@ Copy the `whsec_...` secret it prints into `.env` as `STRIPE_WEBHOOK_SECRET`.
 Node.js 20.x is pinned via `NODE_VERSION = "20"` in `netlify.toml` and `engines` in
 `package.json`.
 
+## Room rates
+
+Pricing precedence: **PMS pricing API → `data/room-rates.json`**. While the PMS is
+unreachable, `data/room-rates.json` is the single source of truth: the booking page
+fetches it for display, and the Netlify functions recompute every subtotal from it
+server-side (`netlify/functions/lib/rates.js`) — client-sent amounts are never
+trusted. The prepay path **fails closed**: a room that can't be priced from the
+rates table cannot be charged online (the guest is told to choose pay-at-property).
+
+To change prices: edit `data/room-rates.json` and push — Netlify auto-redeploys in
+about a minute. File shape: `{ "amenities": {...}, "<location>": { "<roomId>":
+{ "bed": n } | { "single": n, "double": n? } } }` — `bed` = per guest per night
+(dorms); `single`/`double` = per room by occupancy (private rooms).
+
 ## Promo codes
 
 Codes live in `data/promo-codes.json` (`type`: `percent`|`flat`; `appliesTo`:

@@ -3,8 +3,11 @@
    the source of truth: this function never creates bookings, it only emails.
    Expects the booking payload plus `refs` (the PMS booking IDs) — the refs
    become the email reference. Emailing is best-effort on the client; a
-   failure here must not block the guest's confirmation page. */
+   failure here must not block the guest's confirmation page.
+   The subtotal is recomputed from data/room-rates.json when the room is in the
+   rates table — client amounts are never trusted for the emailed figures. */
 const { sendBookingEmails } = require("./lib/booking");
+const { computeSubtotal } = require("./lib/rates");
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -31,6 +34,8 @@ exports.handler = async (event) => {
   }
   const err = validate(booking);
   if (err) return json(400, { error: err });
+  const priced = computeSubtotal(booking);
+  if (!priced.error) booking.subtotal = priced.subtotal;
   const refs = Array.isArray(booking.refs) ? booking.refs.filter(Boolean) : [];
   const ref = refs.length ? refs.join(", ") : "MV-PMS";
   await sendBookingEmails(booking, ref);

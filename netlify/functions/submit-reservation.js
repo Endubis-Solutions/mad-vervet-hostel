@@ -1,10 +1,13 @@
 /* submit-reservation — "reserve" path (pay at check-in). No Stripe here.
    If payload.promoCode is present it is re-validated server-side (expiry, uses,
-   location) and the discount is recomputed from payload.subtotal — the client
-   amounts are never trusted. An invalid promo code is a 400 (documented API
-   behaviour), not a silent ignore. */
+   location). The subtotal is recomputed from data/room-rates.json whenever the
+   room is in the rates table — client amounts are never trusted. Rooms missing
+   from the table keep the client subtotal so no booking is lost (email-only
+   path, staff confirm manually). An invalid promo code is a 400 (documented
+   API behaviour), not a silent ignore. */
 const { bookingRef, sendBookingEmails } = require("./lib/booking");
 const { validateCode, computeDiscount, incrementUsed, round2 } = require("./lib/promo");
+const { computeSubtotal } = require("./lib/rates");
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -33,7 +36,9 @@ exports.handler = async (event) => {
   }
   const err = validate(booking);
   if (err) return json(400, { error: err });
-  const subtotal = Number(booking.subtotal);
+  const priced = computeSubtotal(booking);
+  const subtotal = priced.error ? Number(booking.subtotal) : priced.subtotal;
+  booking.subtotal = subtotal;
   booking.amountChargedNow = 0;
   booking.amountDueAtCheckIn = subtotal;
   booking.promoDiscountApplied = false;

@@ -1,8 +1,11 @@
-/* create-checkout-session — "prepay" path. The charged amount is computed
-   server-side only: subtotal − max(10% prepay discount, promo discount) —
-   the two never stack. Client amounts are never trusted. */
+/* create-checkout-session — "prepay" path. The subtotal is recomputed
+   server-side from data/room-rates.json (see lib/rates.js) and the charged
+   amount is subtotal − max(10% prepay discount, promo discount) — the two
+   never stack. Client amounts are never trusted: if the room can't be priced
+   from the rates table the request fails closed (no charge). */
 const Stripe = require("stripe");
 const { resolvePrepayDiscount, round2 } = require("./lib/promo");
+const { computeSubtotal } = require("./lib/rates");
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const STRIPE_API_VERSION = "2024-06-20";
@@ -15,8 +18,8 @@ function validate(b) {
   if (!b || typeof b !== "object") return "Invalid payload.";
   if (b.paymentOption !== "prepay") return "paymentOption must be 'prepay'.";
   if (!b.location || !b.roomType || !b.checkIn || !b.checkOut) return "Missing booking details.";
+  if (!b.roomId) return "Missing room selection.";
   if (!(Number(b.guests) >= 1)) return "Guests must be at least 1.";
-  if (!(Number(b.subtotal) > 0)) return "Invalid subtotal.";
   const g = b.guest || {};
   if (!g.name || !g.phone || !EMAIL_RE.test(g.email || "")) return "Missing guest details.";
   return null;
@@ -56,7 +59,12 @@ exports.handler = async (event) => {
   }
   const err = validate(booking);
   if (err) return json(400, { error: err });
-  const subtotal = Number(booking.subtotal);
+  const priced = computeSubtotal(booking);
+  if (priced.error) {
+    return json(400, { error: "This room can't be prepaid online right now — please choose 'Reserve now, pay at the property'." });
+  }
+  const subtotal = priced.subtotal;
+  booking.subtotal = subtotal; // server-computed value flows into metadata + emails
   const disc = resolvePrepayDiscount(booking.promoCode, booking.location, subtotal);
   if (disc.error) return json(400, { error: "Promo code rejected: " + disc.error });
   booking._promo = disc; // { amount, applied: "prepay10"|"promo", promoCode }

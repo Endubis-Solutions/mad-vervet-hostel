@@ -5,20 +5,24 @@
          Returns { beds: [{ bedId, roomId, roomName, roomType }] } with one
          entry per free bed (for private rooms, one entry per free room).
      - pricing      : GET  {API_BASE}/api/pricing?propertyCode=ADD|NBO
-         Room rates from the CMS (dynamic — no prices are hardcoded; if the
-         CMS has no rates yet we show "Price on request"). Private rooms are
-         priced by occupancy: 1 guest = single rate, 2 guests = double rate.
+         Room rates from the CMS (dynamic). When the CMS has no rates (or is
+         unreachable), prices fall back to data/room-rates.json — the same
+         file the server charges from. Private rooms are priced by occupancy:
+         1 guest = single rate, 2 guests = double rate.
      - booking      : POST {API_BASE}/api/bookings
          Body: { propertyCode, roomType: "dorm"|"private", checkIn,
                  checkOut, guest: { fullName, guestEmail, phone } }.
          One call books ONE bed/room — the first free one of that type — so
          a stay with multiple units is booked with one POST per unit.
          201 = created, 409 = just sold out, 400 = bad input.
-   Online payment is not connected yet: both payment options create the
-   reservation through the API and the guest pays at the property.
-   After a successful PMS booking the confirmation emails (hostel + guest)
-   are sent via /.netlify/functions/send-confirmation — best-effort, a mail
-   failure never blocks the confirmation page.
+   Online payment: the "prepay" option redirects to Stripe Checkout via
+   /.netlify/functions/create-checkout-session (amount computed server-side,
+   10% prepay discount); after payment the stripe-webhook function sends the
+   confirmation emails. Prepaid bookings are not created in the PMS yet —
+   staff enter them manually from the hostel notification email.
+   Reserve flow: after a successful PMS booking the confirmation emails
+   (hostel + guest) are sent via /.netlify/functions/send-confirmation —
+   best-effort, a mail failure never blocks the confirmation page.
    PMS outage tolerance: if the availability check fails (API down), the
    booking is submitted anyway; if the booking POST itself fails, the
    reservation falls back to /.netlify/functions/submit-reservation (email)
@@ -43,24 +47,13 @@
   var PREPAY_RATE = 0.9;
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   var OFFLINE_MSG = "Couldn't reach the booking system right now — please try again in a moment.";
-  /* Fallback nightly rates, used ONLY when the CMS pricing API has no rate
-     for a room (CMS pricing always wins when present — see resolveRate()).
-     Dorms: { bed } per guest per night. Private: { single, double } by
-     occupancy — Private Room $20 (1 guest) / $25 (2 guests), Single Room $17. */
-  var FALLBACK_RATES = {
-    "addis-ababa": {
-      "mixed-dorm-ensuite-8": { bed: 10 },
-      "mixed-dorm-8": { bed: 9 },
-      "female-dorm-6": { bed: 10 },
-      "private-single": { single: 17 },
-      "private-double": { single: 20, double: 25 }
-    },
-    nairobi: {
-      "female-dorm-4": { bed: 13 },
-      "mixed-dorm-4": { bed: 11 },
-      "private-double": { single: 25, double: 38 }
-    }
-  };
+  /* Fallback nightly rates and amenity prices, fetched from
+     data/room-rates.json at startup (used ONLY when the CMS pricing API has
+     no rate for a room — CMS pricing always wins when present, see
+     resolveRate()). This is the same file the Netlify functions use to
+     recompute prices server-side, so the displayed fallback price is the
+     price charged. Defaults below apply only until the fetch completes. */
+  var FALLBACK_RATES = null;
 
   var state = {
     location: "addis-ababa",
@@ -78,7 +71,7 @@
     nights: 0,
     amenities: { airportPickup: false, breakfast: false, laundry: false },
     paymentOption: "reserve",
-    onlinePaymentEnabled: false, // no online charge until the payment step is wired up — prepay prices as reserve
+    onlinePaymentEnabled: true, // prepay redirects to Stripe Checkout; confirmation emails come from the stripe-webhook function
     subtotal: 0,
     promoCode: null,
     promoDiscount: 0,
@@ -192,7 +185,7 @@
         if (!entry && pricing.byRoom[name]) entry = pricing.byRoom[name];
       });
     }
-    if (!entry) entry = (FALLBACK_RATES[state.location] || {})[room.id] || null;
+    if (!entry) entry = ((FALLBACK_RATES && FALLBACK_RATES[state.location]) || {})[room.id] || null;
     if (!entry) return null;
     if (room.category === "private") {
       var double = room.occupancyPriced && state.guests >= 2;
@@ -325,7 +318,7 @@
         if (!entry && pricing.byRoom[name]) entry = pricing.byRoom[name];
       });
     }
-    if (!entry) entry = (FALLBACK_RATES[state.location] || {})[room.id] || null;
+    if (!entry) entry = ((FALLBACK_RATES && FALLBACK_RATES[state.location]) || {})[room.id] || null;
     if (!entry) return pricing && pricing.error ? "Price on request" : "Loading price…";
     if (room.occupancyPriced && entry.single != null && entry.double != null) {
       return "from " + money(entry.single) + "/night (1 guest) · " + money(entry.double) + "/night (2 guests)";
@@ -590,6 +583,30 @@
     }).catch(function () { /* email is best-effort — the booking already exists */ });
   }
 
+  /* Prepay path: hand the guest to Stripe Checkout. The charged amount is
+     computed server-side (subtotal − max(10% prepay discount, promo)); the
+     stripe-webhook function sends the confirmation emails after payment.
+     No PMS booking is created here — staff enter prepaid bookings manually
+     from the hostel notification email while the PMS is down. */
+  function startStripeCheckout() {
+    setStatus("Redirecting to secure payment…", true);
+    fetch("/.netlify/functions/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(buildPayload())
+    }).then(function (res) {
+      return res.json().then(function (body) {
+        if (!res.ok || !body.checkoutUrl) {
+          throw new Error(body.error || "Payment session failed (" + res.status + ")");
+        }
+        window.location.href = body.checkoutUrl;
+      });
+    }).catch(function (err) {
+      setStatus("Couldn't start online payment (" + err.message + "). " +
+        "Please try again, or choose \"Reserve now, pay at the property\".", false);
+    });
+  }
+
   function submitBooking() {
     createBookings()
       .then(function (ids) {
@@ -616,6 +633,14 @@
       });
   }
 
+  function proceedWithBooking() {
+    if (state.paymentOption === "prepay" && state.onlinePaymentEnabled) {
+      startStripeCheckout();
+    } else {
+      submitBooking();
+    }
+  }
+
   function confirmBooking() {
     var submitBtn = $("bk-submit");
     submitBtn.disabled = true;
@@ -629,11 +654,11 @@
             " or different dates.", false);
           return;
         }
-        submitBooking();
+        proceedWithBooking();
       })
       .catch(function () {
-        setStatus("Couldn't check availability right now — submitting your reservation anyway. We'll confirm by email.", true);
-        submitBooking();
+        setStatus("Couldn't check availability right now — submitting your booking anyway. We'll confirm by email.", true);
+        proceedWithBooking();
       })
       .finally(function () {
         submitBtn.disabled = false;
@@ -652,7 +677,8 @@
     state.amenities.laundry = $("bk-am-laundry").checked;
     var pay = document.querySelector('input[name="paymentOption"]:checked');
     state.paymentOption = pay ? pay.value : "reserve";
-    $("bk-submit").textContent = "Submit Reservation";
+    $("bk-submit").textContent =
+      state.paymentOption === "prepay" && state.onlinePaymentEnabled ? "Pay Now — Save 10%" : "Submit Reservation";
     recalculateTotal();
   }
 
@@ -662,6 +688,20 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
+    // Fallback rates + amenity prices (same file the server charges from).
+    // Best-effort: defaults apply until this resolves.
+    fetch("data/room-rates.json")
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (rates) {
+        if (!rates) return;
+        FALLBACK_RATES = rates;
+        AMENITY_PRICES = rates.amenities || AMENITY_PRICES;
+        if (ROOMS) {
+          renderRooms();
+          recalculateTotal();
+        }
+      })
+      .catch(function () { /* keep defaults */ });
     fetch("data/rooms.json")
       .then(function (res) {
         if (!res.ok) throw new Error("Failed to load rooms");
