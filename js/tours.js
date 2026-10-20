@@ -95,6 +95,41 @@
     return (TOURS && TOURS[LOCATION]) ? TOURS[LOCATION].tours : [];
   }
 
+  /* --- JSON-LD structured data (schema.org ItemList of all tours) --- */
+  function injectTourSchema() {
+    var items = [];
+    var position = 1;
+    Object.keys(TOURS || {}).forEach(function (loc) {
+      TOURS[loc].tours.forEach(function (tour) {
+        items.push({
+          "@type": "ListItem",
+          "position": position++,
+          "item": {
+            "@type": "Product",
+            "name": tour.name + " — " + TOURS[loc].name,
+            "description": tour.description,
+            "image": "https://madvervet.com/" + encodeURI(tour.image),
+            "url": "https://madvervet.com/tours.html?tour=" + tour.id,
+            "offers": {
+              "@type": "Offer",
+              "price": tour.price,
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock"
+            }
+          }
+        });
+      });
+    });
+    var script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "itemListElement": items
+    });
+    document.head.appendChild(script);
+  }
+
   function findTour(id) {
     return currentTours().filter(function (t) { return t.id === id; })[0];
   }
@@ -421,6 +456,7 @@
       })
       .then(function (data) {
         TOURS = data;
+        injectTourSchema();
         document.querySelectorAll(".location-tab").forEach(function (tab) {
           tab.addEventListener("click", function () { selectLocation(tab.dataset.location); });
         });
