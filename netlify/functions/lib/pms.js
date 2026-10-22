@@ -13,6 +13,27 @@
 const PMS_BASE = process.env.PMS_BASE_URL || "https://pms.madvervet.com";
 const PROPERTY_CODES = { "addis-ababa": "ADD", nairobi: "NBO" };
 
+/* Fetch with up to 3 attempts (backoff after each) — rides out brief PMS
+   restarts before declaring the entry partial/manual. 4xx validation errors
+   (400) and sold-out (409) are definitive and returned immediately without
+   retrying; 408 (timeout) and 429 (rate-limit) are transient along with 5xx. */
+function fetchWithRetry(url, options) {
+  let attempts = 0;
+  function attempt() {
+    attempts++;
+    return fetch(url, options).then((res) => {
+      if (attempts < 3 && (res.status === 408 || res.status === 429 || res.status >= 500)) {
+        return new Promise((r) => setTimeout(r, 800 * attempts)).then(attempt);
+      }
+      return res;
+    }, (err) => {
+      if (attempts >= 3) return Promise.reject(err);
+      return new Promise((r) => setTimeout(r, 800 * attempts)).then(attempt);
+    });
+  }
+  return attempt();
+}
+
 // Website room catalog — require()'d so Netlify's esbuild bundler inlines it.
 const ROOMS = (function () {
   try {
@@ -38,7 +59,7 @@ function getRoomInfo(location, roomId) {
 async function planAssignments(propertyCode, roomNames, units, checkIn, checkOut) {
   if (!roomNames || !roomNames.length) return null;
   try {
-    const res = await fetch(PMS_BASE + "/api/availability?propertyCode=" +
+    const res = await fetchWithRetry(PMS_BASE + "/api/availability?propertyCode=" +
       encodeURIComponent(propertyCode) + "&checkIn=" + encodeURIComponent(checkIn) +
       "&checkOut=" + encodeURIComponent(checkOut));
     if (!res.ok) throw new Error("availability " + res.status);
@@ -79,6 +100,8 @@ async function createPmsBookings({ propertyCode, category, roomNames, units, che
     if (assignments && assignments[i]) payload.roomCategory = assignments[i];
     else payload.roomType = category === "private" ? "private" : "dorm";
     try {
+      // Do not retry booking POSTs: a timeout/5xx can happen after the PMS
+      // created the booking, so retrying could create a duplicate.
       const res = await fetch(PMS_BASE + "/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -88,13 +88,35 @@
   function money(n) { return "$" + round2(n).toFixed(2); }
   function plural(label, n) { return n === 1 ? label : label + "s"; }
 
+  /* Fetches with up to 3 attempts (backoff after each) before giving up —
+     rides out brief PMS restarts/deploys instead of falling back to email at
+     the first hiccup. 4xx validation errors (400) and sold-out (409) are
+     definitive and returned immediately without retrying; 408 (timeout) and
+     429 (rate-limit) are transient along with 5xx. */
+  function fetchWithRetry(url, options) {
+    var attempts = 0;
+    function attempt() {
+      attempts++;
+      return fetch(url, options).then(function (res) {
+        if (attempts < 3 && (res.status === 408 || res.status === 429 || res.status >= 500)) {
+          return new Promise(function (r) { setTimeout(r, 800 * attempts); }).then(attempt);
+        }
+        return res;
+      }, function (err) {
+        if (attempts >= 3) throw err;
+        return new Promise(function (r) { setTimeout(r, 800 * attempts); }).then(attempt);
+      });
+    }
+    return attempt();
+  }
+
   /* Live availability from the booking API. Free inventory is counted per
      category: "dorm" entries are individual beds, "private" entries are
      whole rooms (one entry per free room). */
   function fetchAvailability(location, checkIn, checkOut) {
     var url = API_BASE + "/api/availability?propertyCode=" + encodeURIComponent(PROPERTY_CODES[location] || "") +
       "&checkIn=" + encodeURIComponent(checkIn) + "&checkOut=" + encodeURIComponent(checkOut);
-    return fetch(url).then(function (res) {
+    return fetchWithRetry(url).then(function (res) {
       if (!res.ok) throw new Error("Availability request failed (" + res.status + ")");
       return res.json();
     });
@@ -575,6 +597,8 @@
             };
             if (roomCategory) payload.roomCategory = roomCategory;
             else payload.roomType = state.category;
+            // Do not retry booking POSTs: a timeout/5xx can happen after the
+            // PMS created the booking, so retrying could book a duplicate.
             return fetch(API_BASE + "/api/bookings", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
