@@ -5,8 +5,9 @@
      { "bed": n }                 dorm — priced per guest per night
      { "single": n }              private room, single occupancy only
      { "single": n, "double": n } private room — double rate when guests >= 2
-   "amenities" holds the add-on prices (airportPickup flat, breakfastPerDayPerGuest
-   × nights × guests, laundry flat).
+  "amenities" holds the add-on prices (airportPickup flat, breakfastPerDayPerGuest
+   × nights × guests, laundry flat); "amenitiesByLocation" overrides individual
+   amenity prices per location (e.g. Addis breakfast is $3, Nairobi $5).
    Loading: the JSON is require()'d so Netlify's esbuild bundler inlines it into
    the function bundle (fs.readFileSync + __dirname paths break under esbuild —
    the bundled layout differs from the repo layout). The fs fallbacks cover
@@ -67,7 +68,7 @@ function computeSubtotal(b) {
   }
   let subtotal = nightly * nights * units;
   const flags = b.amenities || {};
-  const prices = rates.amenities || {};
+  const prices = Object.assign({}, rates.amenities, (rates.amenitiesByLocation || {})[b.location]);
   if (flags.airportPickup) subtotal += prices.airportPickup || 0;
   if (flags.breakfast) subtotal += (prices.breakfastPerDayPerGuest || 0) * nights * guests;
   if (flags.laundry) subtotal += prices.laundry || 0;

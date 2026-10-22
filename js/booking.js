@@ -1,6 +1,6 @@
 /* booking.js — room selection, live pricing and submission for book.html.
    Room data is loaded from data/rooms.json (later to be served by the CMS).
-   Availability and bookings come from the live booking API (see API_BASE):
+   Availability and bookings come from the live PMS at pms.madvervet.com:
      - availability : GET  {API_BASE}/api/availability?propertyCode=ADD|NBO&checkIn=&checkOut=
          Returns { beds: [{ bedId, roomId, roomName, roomType }] } with one
          entry per free bed (for private rooms, one entry per free room).
@@ -41,7 +41,7 @@
 
   var ROOMS = null; // loaded from data/rooms.json: { locationKey: { name, rooms: [...] } }
   var LOCATION_NAMES = { "addis-ababa": "Addis Ababa", nairobi: "Nairobi" };
-  var API_BASE = "http://localhost:3001"; // local booking API — swap for the live URL when deployed
+  var API_BASE = "https://pms.madvervet.com"; // live booking API (availability + bookings)
   var PROPERTY_CODES = { "addis-ababa": "ADD", nairobi: "NBO" };
   var AMENITY_PRICES = { airportPickup: 15, breakfastPerDayPerGuest: 5, laundry: 10 };
   var PREPAY_RATE = 0.9;
@@ -110,10 +110,14 @@
     var room = roomById(roomId);
     var category = room ? room.category : "dorm";
     var cmsCategory = room && room.cmsCategory ? room.cmsCategory.toLowerCase() : null;
+    var cmsRooms = room && room.cmsRooms && room.cmsRooms.length ? room.cmsRooms : null;
     return fetchAvailability(location, checkIn, checkOut).then(function (data) {
       var remaining = (data.beds || []).filter(function (bed) {
-        // Match the room type via the CMS category name; fall back to the
-        // coarse roomType when the API omits per-bed category info.
+        // Prefer matching by physical room name (cmsRooms) — required when two
+        // website rooms share one PMS category (e.g. Nairobi's two 4-bed mixed
+        // dorms at different prices). Fall back to the CMS category name, then
+        // the coarse roomType when the API omits per-bed category info.
+        if (cmsRooms) return cmsRooms.indexOf(bed.roomName) !== -1;
         var bedCat = bed.category && bed.category.name ? bed.category.name.toLowerCase() : null;
         return bedCat && cmsCategory ? bedCat === cmsCategory : bed.roomType === category;
       }).length;
@@ -237,16 +241,34 @@
     return ms > 0 ? Math.round(ms / 86400000) : 0;
   }
 
+  /* Amenity prices for the current location: data/room-rates.json may override
+     individual prices per location (amenitiesByLocation) — e.g. breakfast is
+     $3/day in Addis Ababa and $5/day in Nairobi. */
+  function amenityPrices() {
+    var merged = {};
+    for (var k in AMENITY_PRICES) merged[k] = AMENITY_PRICES[k];
+    var loc = FALLBACK_RATES && FALLBACK_RATES.amenitiesByLocation &&
+      FALLBACK_RATES.amenitiesByLocation[state.location];
+    if (loc) for (var k2 in loc) merged[k2] = loc[k2];
+    return merged;
+  }
+
+  function renderAmenityLabels() {
+    var el = $("bk-am-breakfast-price");
+    if (el) el.textContent = "$" + amenityPrices().breakfastPerDayPerGuest;
+  }
+
   /* Dorms: every guest needs a bed (units = guests, priced per bed per
      guest). Private rooms: one room per booking, priced by occupancy. */
   function recalculateTotal() {
+    var prices = amenityPrices();
     state.nights = computeNights();
     state.units = state.category === "private" ? 1 : state.guests;
     state.rate = resolveRate();
     var total = state.rate == null ? 0 : state.nights * state.rate * state.units;
-    if (state.amenities.airportPickup) total += AMENITY_PRICES.airportPickup;
-    if (state.amenities.breakfast) total += AMENITY_PRICES.breakfastPerDayPerGuest * state.nights * state.guests;
-    if (state.amenities.laundry) total += AMENITY_PRICES.laundry;
+    if (state.amenities.airportPickup) total += prices.airportPickup;
+    if (state.amenities.breakfast) total += prices.breakfastPerDayPerGuest * state.nights * state.guests;
+    if (state.amenities.laundry) total += prices.laundry;
     state.subtotal = round2(total);
     state.prepayDiscountApplied = state.onlinePaymentEnabled && state.paymentOption === "prepay";
     state.amountChargedNow = state.prepayDiscountApplied ? round2(state.subtotal * PREPAY_RATE) : 0;
@@ -411,6 +433,7 @@
     $("booking-detail").hidden = true;
     $("booking-hint").hidden = false;
     renderRooms();
+    renderAmenityLabels();
     recalculateTotal();
     fetchPricing(loc).then(function () {
       renderRooms();
@@ -501,46 +524,80 @@
     status.textContent = msg;
   }
 
+  /* Assigns each unit to a physical room (by PMS room name, from the room's
+     cmsRooms) using live availability, so the booking targets the right room
+     — required when one PMS category spans multiple price points (Nairobi's
+     two mixed dorms) and for Single Rooms (PMS category "single"). Returns an
+     array of room names (one per unit), or null when availability can't be
+     fetched — the POST then falls back to coarse roomType booking. */
+  function planRoomAssignments() {
+    var room = roomById(state.roomId);
+    var names = room && room.cmsRooms && room.cmsRooms.length ? room.cmsRooms : null;
+    if (!names) return Promise.resolve(null);
+    return fetchAvailability(state.location, state.checkIn, state.checkOut).then(function (data) {
+      var free = {};
+      (data.beds || []).forEach(function (b) {
+        if (names.indexOf(b.roomName) !== -1) free[b.roomName] = (free[b.roomName] || 0) + 1;
+      });
+      var assignments = [];
+      for (var i = 0; i < state.units; i++) {
+        var target = null;
+        names.forEach(function (n) { if (!target && (free[n] || 0) > 0) target = n; });
+        if (!target) return null; // fewer free units than expected — let it 409 naturally
+        free[target]--;
+        assignments.push(target);
+      }
+      return assignments;
+    }).catch(function () { return null; });
+  }
+
   /* The API books exactly one bed/room per call, so a multi-unit stay is
      booked with one sequential POST per unit. Resolves with the booking IDs;
      a 409 mid-way rejects with err.soldOut = true (earlier units are
      already booked at that point). */
   function createBookings() {
-    var ids = [];
-    var chain = Promise.resolve();
-    for (var i = 0; i < state.units; i++) {
-      chain = chain.then(function () {
-        return fetch(API_BASE + "/api/bookings", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            propertyCode: PROPERTY_CODES[state.location],
-            roomType: state.category,
-            checkIn: state.checkIn,
-            checkOut: state.checkOut,
-            guest: {
-              fullName: $("bk-name").value.trim(),
-              guestEmail: $("bk-email").value.trim(),
-              phone: $("bk-phone").value.trim()
+    return planRoomAssignments().then(function (assignments) {
+      var ids = [];
+      var chain = Promise.resolve();
+      for (var i = 0; i < state.units; i++) {
+        (function (roomCategory) {
+          chain = chain.then(function () {
+            // The PMS requires exactly one of roomCategory / roomType.
+            var payload = {
+              propertyCode: PROPERTY_CODES[state.location],
+              checkIn: state.checkIn,
+              checkOut: state.checkOut,
+              guest: {
+                fullName: $("bk-name").value.trim(),
+                guestEmail: $("bk-email").value.trim(),
+                phone: $("bk-phone").value.trim()
+              }
+            };
+            if (roomCategory) payload.roomCategory = roomCategory;
+            else payload.roomType = state.category;
+            return fetch(API_BASE + "/api/bookings", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+          }).then(function (res) {
+            if (res.status === 409) {
+              var err = new Error("sold out");
+              err.soldOut = true;
+              err.bookedCount = ids.length;
+              throw err;
             }
-          })
-        }).then(function (res) {
-          if (res.status === 409) {
-            var err = new Error("sold out");
-            err.soldOut = true;
-            err.bookedCount = ids.length;
-            throw err;
-          }
-          if (!res.ok) throw new Error("Booking failed (" + res.status + ")");
-          return res.json();
-        }).then(function (body) {
-          ids.push(body.bookingId);
-        });
+            if (!res.ok) throw new Error("Booking failed (" + res.status + ")");
+            return res.json();
+          }).then(function (body) {
+            ids.push(body.bookingId);
+          });
+        })(assignments ? assignments[i] : null);
+      }
+      return chain.then(function () { return ids; }, function (err) {
+        if (err && err.bookedCount == null) err.bookedCount = ids.length;
+        throw err;
       });
-    }
-    return chain.then(function () { return ids; }, function (err) {
-      if (err && err.bookedCount == null) err.bookedCount = ids.length;
-      throw err;
     });
   }
 
@@ -717,6 +774,7 @@
         if (!rates) return;
         FALLBACK_RATES = rates;
         AMENITY_PRICES = rates.amenities || AMENITY_PRICES;
+        renderAmenityLabels();
         if (ROOMS) {
           renderRooms();
           recalculateTotal();

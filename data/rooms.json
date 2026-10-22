@@ -97,10 +97,10 @@
         "type": "4 Bed Mixed Dorm",
         "category": "dorm",
         "cmsCategory": "4 Bed Mixed Dorm",
-        "cmsRooms": ["Kisumu", "Masai Mara", "Turkana"],
+        "cmsRooms": ["Kisumu", "Masai Mara"],
         "note": "Shared dorm",
         "unitLabel": "bed",
-        "maxUnits": 12,
+        "maxUnits": 8,
         "images": [
           { "src": "images/nairobi-lounge.jpg", "alt": "Mixed dorm with bunk beds" },
           { "src": "images/hero-group.jpg", "alt": "Dorm lounge area" }
@@ -111,7 +111,7 @@
         "type": "4 Bed Mixed Dorm",
         "category": "dorm",
         "cmsCategory": "4 Bed Mixed Dorm",
-        "cmsRooms": [],
+        "cmsRooms": ["Turkana"],
         "note": "Shared dorm",
         "unitLabel": "bed",
         "maxUnits": 4,

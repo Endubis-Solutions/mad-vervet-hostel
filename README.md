@@ -26,6 +26,27 @@ cp .env.example .env   # then fill in real values (never commit .env)
 
 | `ANTHROPIC_API_KEY` | Anthropic API key for the `ai-chat` FAQ function (server-side only). If unset, the function returns a graceful fallback reply pointing to WhatsApp. |
 | `WHATSAPP_BUSINESS_NUMBER` | Reference copy of the WhatsApp number used by the chat widget. The number is **also hardcoded in `js/chat-widget.js`** (static JS can't read env vars) — keep the two in sync. |
+| `PMS_BASE_URL` | Optional override for the PMS API base (default `https://pms.madvervet.com`). Used by `stripe-webhook` to enter prepaid bookings. The browser uses the URL hardcoded as `API_BASE` in `js/booking.js` — keep the two in sync. |
+
+## PMS integration
+
+The site talks to the PMS at `https://pms.madvervet.com` (CORS is open for
+`madvervet.com`):
+
+- `GET /api/availability?propertyCode=ADD|NBO&checkIn=&checkOut=` — live bed/room
+  counts per category, matched to website rooms by `cmsRooms` (physical room names)
+  in `data/rooms.json`.
+- `POST /api/bookings` — creates one bed/room per call. Bookings target a
+  specific physical room via `roomCategory` (a PMS room name, picked from live
+  availability out of the website room's `cmsRooms` list) — this is what keeps
+  Nairobi's $10/$13 dorms and Addis' Single Rooms in the right PMS rooms.
+  Exactly one of `roomCategory` / `roomType` is accepted; if availability
+  can't be fetched, the request falls back to coarse
+  `{ propertyCode, roomType: "dorm"|"private", ... }` (first free unit of that
+  type). Reserve bookings are created from the browser; **prepaid bookings are
+  created by `stripe-webhook` after payment** — if PMS entry fails or is
+  partial, staff get an email with a manual-entry note (no booking is lost).
+- There is no pricing endpoint — rates live in `data/room-rates.json` (see below).
 
 ## Chat widget (AI FAQ)
 

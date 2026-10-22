@@ -1,10 +1,13 @@
-/* stripe-webhook — verifies the Stripe signature, then emails booking details
-   for completed prepay checkouts (reconstructed from session metadata).
+/* stripe-webhook — verifies the Stripe signature, then for completed prepay
+   checkouts (reconstructed from session metadata): enters the booking in the
+   PMS (lib/pms.js) and emails booking details. If the PMS entry fails or is
+   partial, the emails still go out with a manual-entry note for staff.
    Increments a promo code's usedCount ONLY when session metadata says the
    promo was the discount actually applied (not when the 10% prepay won). */
 const Stripe = require("stripe");
 const { sendBookingEmails } = require("./lib/booking");
 const { incrementUsed } = require("./lib/promo");
+const { createPmsBookings, getRoomInfo, PROPERTY_CODES } = require("./lib/pms");
 
 const STRIPE_API_VERSION = "2024-06-20";
 
@@ -56,8 +59,31 @@ exports.handler = async (event) => {
     const booking = bookingFromMetadata(session.metadata);
     booking.amountChargedNow = (session.amount_total || 0) / 100;
     if (booking.promoDiscountApplied) incrementUsed(booking.promoCode);
-    await sendBookingEmails(booking, session.id,
-      "Paid online via Stripe (session " + session.id + "). Not entered in the PMS automatically — please add this booking manually.");
+    await sendBookingEmails(booking, session.id, await enterInPms(booking, session));
   }
   return json(200, { received: true });
 };
+
+/* Enters a paid booking in the PMS (room + category resolved from
+   data/rooms.json — client metadata is not trusted for this). Returns the
+   hostel-note line for the notification email. */
+async function enterInPms(booking, session) {
+  const paid = "Paid online via Stripe (session " + session.id + ").";
+  const info = getRoomInfo(booking.location, session.metadata && session.metadata.roomId);
+  const propertyCode = PROPERTY_CODES[booking.location];
+  if (!info || !propertyCode) {
+    return paid + " Could NOT be entered in the PMS automatically (unmapped room/location) — please add it manually.";
+  }
+  const units = info.category === "dorm" ? booking.guests : 1;
+  const result = await createPmsBookings({
+    propertyCode, category: info.category, roomNames: info.cmsRooms, units,
+    checkIn: booking.checkIn, checkOut: booking.checkOut, guest: booking.guest
+  });
+  if (result.failed === 0) {
+    return paid + " Entered in the PMS — booking IDs: " + result.booked.join(", ") + ".";
+  }
+  return "PAID online via Stripe (session " + session.id + ") — NOT fully entered in the PMS (" +
+    result.booked.length + " of " + units + " units booked" +
+    (result.booked.length ? ": " + result.booked.join(", ") : "") +
+    "). Please add the missing unit(s) manually and contact the guest if the room is sold out.";
+}

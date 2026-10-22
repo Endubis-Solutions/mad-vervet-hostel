@@ -36,7 +36,7 @@ function metadata(b) {
   const a = b.amenities || {};
   const g = b.guest || {};
   return {
-    location: String(b.location), roomType: String(b.roomType),
+    location: String(b.location), roomType: String(b.roomType), roomId: String(b.roomId || ""),
     checkIn: String(b.checkIn), checkOut: String(b.checkOut),
     guests: String(b.guests), subtotal: String(b.subtotal),
     guestName: String(g.name || ""), guestEmail: String(g.email || ""), guestPhone: String(g.phone || ""),

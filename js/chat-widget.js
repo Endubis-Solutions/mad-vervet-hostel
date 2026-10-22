@@ -21,17 +21,17 @@
 
   var QUICK_REPLIES = [
     { label: "Check-in / check-out times", answer:
-      "Check-in is from 2:00 PM and check-out is by 11:00 AM. " +
+      "Check-in is from 3:00 PM and check-out is by 11:00 AM. " +
       "Reception in Addis Ababa is staffed 24 hours, so late arrivals are fine — just let us know." },
     { label: "Cancellation policy", answer:
       "Free cancellation if you booked 24 hours or more before your arrival day. " +
       "Cancellations inside 24 hours may be charged the first night, and no-shows are charged the first night." },
     { label: "Private rooms", answer:
-      "Yes, both locations have private rooms! Addis Ababa: Private Single $18 and Private Double $25 " +
-      "(breakfast included). Nairobi: Private Rooms from $20. Grab one on the booking page (book.html)." },
+      "Yes, both locations have private rooms! Addis Ababa: Single Room $17, Private Room $20 (1 guest) / " +
+      "$25 (2 guests). Nairobi: Private Room $27 (1 guest) / $38 (2 guests). Grab one on the booking page (book.html)." },
     { label: "Is breakfast included?", answer:
-      "In Addis Ababa we serve daily breakfast (continental / vegan / halal), and it's included with the " +
-      "Private Double. Otherwise you can add daily breakfast for $5/day per guest when you book." },
+      "Breakfast isn't included in the room rate — you can add daily breakfast when you book: " +
+      "$3/day per guest in Addis Ababa (continental / vegan / halal) and $5/day per guest in Nairobi." },
     { label: "Airport transport", answer:
       "Addis Ababa is about 10 minutes from Bole International Airport — we run a paid airport shuttle, " +
       "and you can add airport pickup/drop-off for $15 flat (one-way) when booking. " +

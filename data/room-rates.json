@@ -1,16 +1,19 @@
 {
   "amenities": { "airportPickup": 15, "breakfastPerDayPerGuest": 5, "laundry": 10 },
+  "amenitiesByLocation": {
+    "addis-ababa": { "breakfastPerDayPerGuest": 3 }
+  },
   "addis-ababa": {
     "mixed-dorm-ensuite-8": { "bed": 10 },
-    "mixed-dorm-8": { "bed": 8 },
+    "mixed-dorm-8": { "bed": 9 },
     "female-dorm-6": { "bed": 10 },
     "private-single": { "single": 17 },
     "private-double": { "single": 20, "double": 25 }
   },
   "nairobi": {
-    "female-dorm-4": { "bed": 13 },
-    "mixed-dorm-4": { "bed": 8 },
-    "mixed-dorm-4-b": { "bed": 11 },
-    "private-double": { "single": 25, "double": 38 }
+    "female-dorm-4": { "bed": 14 },
+    "mixed-dorm-4": { "bed": 10 },
+    "mixed-dorm-4-b": { "bed": 13 },
+    "private-double": { "single": 27, "double": 38 }
   }
 }
