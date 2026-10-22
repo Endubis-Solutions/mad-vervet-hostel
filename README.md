@@ -36,10 +36,11 @@ The site talks to the PMS at `https://pms.madvervet.com` (CORS is open for
 - `GET /api/availability?propertyCode=ADD|NBO&checkIn=&checkOut=` — live bed/room
   counts per category, matched to website rooms by `cmsRooms` (physical room names)
   in `data/rooms.json`.
-- `POST /api/bookings` — creates one bed/room per call. Bookings target a
-  specific physical room via `roomCategory` (a PMS room name, picked from live
-  availability out of the website room's `cmsRooms` list) — this is what keeps
-  Nairobi's $10/$13 dorms and Addis' Single Rooms in the right PMS rooms.
+- `POST /api/bookings` — creates one bed/room per call. `roomCategory` must be
+  a PMS category code (e.g. `female-dorm`), not a physical room name. The site
+  matches live availability beds' category codes to the website room's
+  `cmsRooms` names to select the correct category — keeping Nairobi's differently
+  priced mixed dorms and Addis' Single Rooms mapped correctly.
   Exactly one of `roomCategory` / `roomType` is accepted; if availability
   can't be fetched, the request falls back to coarse
   `{ propertyCode, roomType: "dorm"|"private", ... }` (first free unit of that

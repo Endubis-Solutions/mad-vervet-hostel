@@ -1,14 +1,13 @@
 /* PMS client — creates bookings at pms.madvervet.com after a Stripe payment
-   completes (used by stripe-webhook). The PMS books ONE unit per call: dorms
-   one bed per guest, private rooms one room. Bookings target a specific
-   physical room via `roomCategory` (a PMS room name from the website room's
-   cmsRooms list, picked from live availability) — required when one PMS
-   category spans multiple price points (Nairobi's two mixed dorms) and for
-   Single Rooms (PMS category "single"). The PMS accepts exactly one of
-   roomCategory / roomType; if availability can't be fetched we fall back to
-   coarse roomType booking. Never throws — the caller always sends the
-   confirmation emails, with a manual-entry note when the PMS entry is missing
-   or partial (sold-out mid-way, API down). */
+  completes (used by stripe-webhook). The PMS books ONE unit per call: dorms
+  one bed per guest, private rooms one room. Bookings use the PMS category
+  code (`roomCategory`, e.g. "female-dorm") matched from live availability;
+  website physical room names in cmsRooms are used to choose the right code
+  when multiple priced rooms share a category. The PMS accepts exactly one of
+  roomCategory / roomType; if availability can't be fetched we fall back to
+  coarse roomType booking. Never throws — the caller always sends the
+  confirmation emails, with a manual-entry note when the PMS entry is missing
+  or partial (sold-out mid-way, API down). */
 
 const PMS_BASE = process.env.PMS_BASE_URL || "https://pms.madvervet.com";
 const PROPERTY_CODES = { "addis-ababa": "ADD", nairobi: "NBO" };
@@ -53,9 +52,13 @@ function getRoomInfo(location, roomId) {
   return room ? { category: room.category, cmsRooms: room.cmsRooms || [] } : null;
 }
 
-/* Assigns each unit to a physical room name using live PMS availability.
-   Returns an array of room names (length === units), or null when
-   availability can't be fetched or there aren't enough free units. */
+/* Assigns each unit to a PMS category code using live availability.
+   The PMS `POST /api/bookings` expects `roomCategory` to be a category code
+   (e.g. "female-dorm") not a physical room name like "Arbaminch" -- sending
+   a room name returns 404 unknown_category and made bookings look unreachable
+   even while the PMS was live. We map cmsRooms names -> category.code from
+   availability beds, then return an array of codes (one per unit), or null
+   when availability can't be fetched or there aren't enough free units. */
 async function planAssignments(propertyCode, roomNames, units, checkIn, checkOut) {
   if (!roomNames || !roomNames.length) return null;
   try {
@@ -65,15 +68,21 @@ async function planAssignments(propertyCode, roomNames, units, checkIn, checkOut
     if (!res.ok) throw new Error("availability " + res.status);
     const data = await res.json();
     const free = {};
+    const nameToCode = {};
     (data.beds || []).forEach((b) => {
-      if (roomNames.indexOf(b.roomName) !== -1) free[b.roomName] = (free[b.roomName] || 0) + 1;
+      if (roomNames.indexOf(b.roomName) !== -1) {
+        free[b.roomName] = (free[b.roomName] || 0) + 1;
+        if (!nameToCode[b.roomName] && b.category && b.category.code) nameToCode[b.roomName] = b.category.code;
+      }
     });
     const assignments = [];
     for (let i = 0; i < units; i++) {
       const target = roomNames.find((n) => (free[n] || 0) > 0);
       if (!target) return null;
       free[target]--;
-      assignments.push(target);
+      const code = nameToCode[target];
+      if (!code) return null;
+      assignments.push(code);
     }
     return assignments;
   } catch (e) {

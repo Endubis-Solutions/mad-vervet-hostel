@@ -546,34 +546,45 @@
     status.textContent = msg;
   }
 
-  /* Assigns each unit to a physical room (by PMS room name, from the room's
-     cmsRooms) using live availability, so the booking targets the right room
-     — required when one PMS category spans multiple price points (Nairobi's
-     two mixed dorms) and for Single Rooms (PMS category "single"). Returns an
-     array of room names (one per unit), or null when availability can't be
-     fetched — the POST then falls back to coarse roomType booking. */
+  /* Assigns each unit to a PMS category code using live availability, so the
+     booking targets the right PMS category -- required when one PMS category
+     spans multiple price points (Nairobi's two mixed dorms) and for Single
+     Rooms (PMS category "single"). The PMS `/api/bookings` endpoint expects
+     `roomCategory` to be a category *code* (e.g. "female-dorm", "mixed-dorm",
+     "single", "private") -- sending a physical room *name* like "Arbaminch"
+     or "Lalibela" returns 404 `unknown_category` and made every live booking
+     look "unreachable" even while the PMS was up. We map `cmsRooms` room
+     names -> `category.code` from the live availability beds, then return an
+     array of codes (one per unit), or null when availability can't be fetched
+     -- the POST then falls back to coarse roomType booking. */
   function planRoomAssignments() {
     var room = roomById(state.roomId);
     var names = room && room.cmsRooms && room.cmsRooms.length ? room.cmsRooms : null;
     if (!names) return Promise.resolve(null);
     return fetchAvailability(state.location, state.checkIn, state.checkOut).then(function (data) {
       var free = {};
+      var nameToCode = {};
       (data.beds || []).forEach(function (b) {
-        if (names.indexOf(b.roomName) !== -1) free[b.roomName] = (free[b.roomName] || 0) + 1;
+        if (names.indexOf(b.roomName) !== -1) {
+          free[b.roomName] = (free[b.roomName] || 0) + 1;
+          if (!nameToCode[b.roomName] && b.category && b.category.code) nameToCode[b.roomName] = b.category.code;
+        }
       });
       var assignments = [];
       for (var i = 0; i < state.units; i++) {
         var target = null;
         names.forEach(function (n) { if (!target && (free[n] || 0) > 0) target = n; });
-        if (!target) return null; // fewer free units than expected — let it 409 naturally
+        if (!target) return null; // fewer free units than expected -- let it 409 naturally
         free[target]--;
-        assignments.push(target);
+        var code = nameToCode[target];
+        if (!code) return null; // can't resolve code -- fall back to roomType
+        assignments.push(code);
       }
       return assignments;
     }).catch(function () { return null; });
   }
 
-  /* The API books exactly one bed/room per call, so a multi-unit stay is
+    /* The API books exactly one bed/room per call, so a multi-unit stay is
      booked with one sequential POST per unit. Resolves with the booking IDs;
      a 409 mid-way rejects with err.soldOut = true (earlier units are
      already booked at that point). */
