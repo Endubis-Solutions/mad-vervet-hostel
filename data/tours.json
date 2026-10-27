@@ -135,10 +135,10 @@
           "Optional Maasai village visit and sunrise balloon ride (extra, bookable on site).",
           "Departs Nairobi early on day one; bring binoculars, layers and a camera with zoom."
         ],
-        "image": "images/hero-group.jpg",
+        "image": "images/nairobi/garden.jpg",
         "images": [
+          "images/nairobi/garden.jpg",
           "images/hero-group.jpg",
-          "images/nairobi-lounge.jpg",
           "images/hero-party.jpg"
         ]
       },
@@ -154,9 +154,9 @@
           "Includes park entry fees, transport from the hostel and a guide.",
           "Back by early afternoon — pairs well with the Giraffe Centre trip the next day."
         ],
-        "image": "images/nairobi-lounge.jpg",
+        "image": "images/nairobi/exterior.jpg",
         "images": [
-          "images/nairobi-lounge.jpg",
+          "images/nairobi/exterior.jpg",
           "images/hero-group.jpg",
           "images/hero-lounge.jpg"
         ]
@@ -176,7 +176,7 @@
         "image": "images/hero-lounge.jpg",
         "images": [
           "images/hero-lounge.jpg",
-          "images/nairobi-lounge.jpg",
+          "images/nairobi/reception.jpg",
           "images/hero-group.jpg"
         ]
       },
@@ -196,7 +196,7 @@
         "images": [
           "images/hero-party.jpg",
           "images/hero-group.jpg",
-          "images/nairobi-lounge.jpg"
+          "images/nairobi/veranda.jpg"
         ]
       },
       {
@@ -216,7 +216,7 @@
         "image": "images/hero-group.jpg",
         "images": [
           "images/hero-group.jpg",
-          "images/nairobi-lounge.jpg",
+          "images/nairobi/lounge.jpg",
           "images/hero-party.jpg"
         ]
       }

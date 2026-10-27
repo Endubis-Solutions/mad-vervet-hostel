@@ -88,8 +88,8 @@
         "unitLabel": "bed",
         "maxUnits": 4,
         "images": [
-          { "src": "images/nairobi-lounge.jpg", "alt": "Female dorm" },
-          { "src": "images/hero-lounge.jpg", "alt": "Dorm detail" }
+          { "src": "images/nairobi/dorm-02.jpg", "alt": "Female dorm with bunk beds and mosquito nets" },
+          { "src": "images/nairobi/dorm-03.jpg", "alt": "Dorm bunks with privacy curtains" }
         ]
       },
       {
@@ -102,8 +102,8 @@
         "unitLabel": "bed",
         "maxUnits": 8,
         "images": [
-          { "src": "images/nairobi-lounge.jpg", "alt": "Mixed dorm with bunk beds" },
-          { "src": "images/hero-group.jpg", "alt": "Dorm lounge area" }
+          { "src": "images/nairobi/dorm-01.jpg", "alt": "Mixed dorm with wooden bunk beds and mosquito nets" },
+          { "src": "images/nairobi/dorm-03.jpg", "alt": "Dorm bunks with privacy curtains" }
         ]
       },
       {
@@ -116,8 +116,8 @@
         "unitLabel": "bed",
         "maxUnits": 4,
         "images": [
-          { "src": "images/nairobi-lounge.jpg", "alt": "Mixed dorm with bunk beds" },
-          { "src": "images/hero-group.jpg", "alt": "Dorm lounge area" }
+          { "src": "images/nairobi/dorm-01.jpg", "alt": "Mixed dorm with wooden bunk beds and mosquito nets" },
+          { "src": "images/nairobi/dorm-02.jpg", "alt": "Dorm bunks under a sloped wooden ceiling" }
         ]
       },
       {
@@ -132,8 +132,7 @@
         "maxOccupancy": 2,
         "occupancyPriced": true,
         "images": [
-          { "src": "images/nairobi-lounge.jpg", "alt": "Private double room" },
-          { "src": "images/hero-group.jpg", "alt": "Room seating area" }
+          { "src": "images/nairobi/private-room.jpg", "alt": "Private double room with mosquito net and wardrobe" }
         ]
       }
     ]
