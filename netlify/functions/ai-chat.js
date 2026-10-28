@@ -22,7 +22,7 @@ const SYSTEM_PROMPT = [
   "- Cancellation: free if booked 24+ hours before arrival day; inside 24 hours may be charged the first night; no-shows charged the first night.",
   "- Payment: reserve now and pay at check-in (cash or card), or pay online in full at booking and save 10%.",
   "- Addis Ababa rooms: 8-bed Mixed Dorm $9/bed, 8-bed Mixed Dorm En-Suite $10/bed, 6-bed Female Dorm $10/bed, Single Room $17 (single occupancy), Private Room $20 (1 guest) / $25 (2 guests).",
-  "- Nairobi rooms: 4 Bed Mixed Dorm $10/bed or $13/bed (two rooms, different rates), Female Dorm $14/bed, Private Room $27 (1 guest) / $38 (2 guests).",
+  "- Nairobi rooms: 4 Bed Mixed Dorm $9/bed or $13/bed (two rooms, different rates), Female Dorm $14/bed, Private Room $27 (1 guest) / $38 (2 guests).",
   "- Breakfast is NOT included in any room rate — it's an add-on at booking: $3/day per guest in Addis Ababa, $5/day per guest in Nairobi.",
   "- Other add-on amenities at booking: airport pickup/drop-off $15 flat one-way, laundry $10 per booking.",
   "- Addis Ababa: Downtown Bole, BL_03_552 St, Hayahulet; ~10 min from Bole International Airport; paid airport shuttle; daily breakfast (continental/vegan/halal); bar, garden with outdoor fireplace, BBQ, karaoke, games room, shared kitchen, free WiFi, 24-hour reception. Phone +251 923 577 808.",

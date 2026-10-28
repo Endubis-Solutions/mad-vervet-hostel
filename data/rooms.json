@@ -79,20 +79,6 @@
     "name": "Nairobi",
     "rooms": [
       {
-        "id": "female-dorm-4",
-        "type": "Female Dorm",
-        "category": "dorm",
-        "cmsCategory": "4-bed Female Dorm",
-        "cmsRooms": ["Naivasha"],
-        "note": "Female-only shared dorm",
-        "unitLabel": "bed",
-        "maxUnits": 4,
-        "images": [
-          { "src": "images/nairobi/dorm-02.jpg", "alt": "Female dorm with bunk beds and mosquito nets" },
-          { "src": "images/nairobi/dorm-03.jpg", "alt": "Dorm bunks with privacy curtains" }
-        ]
-      },
-      {
         "id": "mixed-dorm-4",
         "type": "4 Bed Mixed Dorm",
         "category": "dorm",
@@ -118,6 +104,20 @@
         "images": [
           { "src": "images/nairobi/dorm-01.jpg", "alt": "Mixed dorm with wooden bunk beds and mosquito nets" },
           { "src": "images/nairobi/dorm-02.jpg", "alt": "Dorm bunks under a sloped wooden ceiling" }
+        ]
+      },
+      {
+        "id": "female-dorm-4",
+        "type": "Female Dorm",
+        "category": "dorm",
+        "cmsCategory": "4-bed Female Dorm",
+        "cmsRooms": ["Naivasha"],
+        "note": "Female-only shared dorm",
+        "unitLabel": "bed",
+        "maxUnits": 4,
+        "images": [
+          { "src": "images/nairobi/dorm-02.jpg", "alt": "Female dorm with bunk beds and mosquito nets" },
+          { "src": "images/nairobi/dorm-03.jpg", "alt": "Dorm bunks with privacy curtains" }
         ]
       },
       {

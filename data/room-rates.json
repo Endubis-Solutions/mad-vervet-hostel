@@ -12,7 +12,7 @@
   },
   "nairobi": {
     "female-dorm-4": { "bed": 14 },
-    "mixed-dorm-4": { "bed": 10 },
+    "mixed-dorm-4": { "bed": 9 },
     "mixed-dorm-4-b": { "bed": 13 },
     "private-double": { "single": 27, "double": 38 }
   }
