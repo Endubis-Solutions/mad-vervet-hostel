@@ -5,7 +5,7 @@
    Increments a promo code's usedCount ONLY when session metadata says the
    promo was the discount actually applied (not when the 10% prepay won). */
 const Stripe = require("stripe");
-const { sendBookingEmails } = require("./lib/booking");
+const { bookingFromSession, flagSet, setSessionFlag, sendPrepayEmails } = require("./lib/prepay");
 const { incrementUsed } = require("./lib/promo");
 const { createPmsBookings, getRoomInfo, PROPERTY_CODES } = require("./lib/pms");
 
@@ -13,31 +13,6 @@ const STRIPE_API_VERSION = "2024-06-20";
 
 function json(statusCode, body) {
   return { statusCode, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) };
-}
-
-function bookingFromMetadata(m) {
-  m = m || {};
-  const am = String(m.amenities || "");
-  return {
-    location: m.location, roomType: m.roomType,
-    checkIn: m.checkIn, checkOut: m.checkOut,
-    guests: Number(m.guests) || 1,
-    amenities: {
-      airportPickup: am.includes("airportPickup"),
-      breakfast: am.includes("breakfast"),
-      laundry: am.includes("laundry")
-    },
-    guest: { name: m.guestName || "", email: m.guestEmail || "", phone: m.guestPhone || "" },
-    specialRequests: m.specialRequests || "",
-    subtotal: Number(m.subtotal) || 0,
-    paymentOption: "prepay",
-    prepayDiscountApplied: true,
-    promoCode: m.promoCode || null,
-    promoDiscount: Number(m.discountAmount) || 0,
-    promoDiscountApplied: m.discountApplied === "promo" && !!m.promoCode,
-    amountChargedNow: 0, // filled from amount_total below
-    amountDueAtCheckIn: 0
-  };
 }
 
 exports.handler = async (event) => {
@@ -55,14 +30,39 @@ exports.handler = async (event) => {
     return json(400, { error: "Invalid signature" });
   }
   if (stripeEvent.type === "checkout.session.completed") {
-    const session = stripeEvent.data.object;
-    const booking = bookingFromMetadata(session.metadata);
-    booking.amountChargedNow = (session.amount_total || 0) / 100;
-    if (booking.promoDiscountApplied) incrementUsed(booking.promoCode);
-    await sendBookingEmails(booking, session.id, await enterInPms(booking, session));
+    const session = await retrieveSession(stripe, stripeEvent.data.object);
+    const booking = bookingFromSession(session);
+
+    // Enter in the PMS exactly once (idempotent across webhook retries).
+    let hostelNote = "";
+    if (!flagSet(session, "pmsEntered")) {
+      hostelNote = await enterInPms(booking, session);
+      await setSessionFlag(stripe, session.id, session.metadata, "pmsEntered");
+    } else {
+      hostelNote = "Paid online via Stripe (session " + session.id + "). Already entered in the PMS.";
+    }
+
+    // Send the confirmation emails exactly once (idempotent; the success-page
+    // fallback may have already sent them).
+    const sent = await sendPrepayEmails({ stripe, session, booking, hostelNote });
+    if (sent.sent && booking.promoDiscountApplied) incrementUsed(booking.promoCode);
   }
   return json(200, { received: true });
 };
+
+/* Re-fetches the Checkout Session fresh so the dedupe flags (written to session
+   metadata by this function or the success-page fallback) are visible even on
+   Stripe webhook retries, where the event snapshot would otherwise be stale.
+   Falls back to the event snapshot if the retrieve call fails. */
+async function retrieveSession(stripe, eventSession) {
+  try {
+    return await stripe.checkout.sessions.retrieve(eventSession.id);
+  } catch (err) {
+    console.warn("stripe-webhook: could not re-retrieve session " + eventSession.id +
+      ", using event snapshot:", err.message);
+    return eventSession;
+  }
+}
 
 /* Enters a paid booking in the PMS (room + category resolved from
    data/rooms.json — client metadata is not trusted for this). Returns the

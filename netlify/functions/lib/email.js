@@ -23,9 +23,13 @@ async function sendEmail({ from, to, subject, html }) {
   }
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const { error } = await resend.emails.send({ from: from || FROM_INQUIRY, to, subject, html });
-    if (error) console.error("Resend error for '" + subject + "':", error);
-    return { skipped: false, error: error || null };
+    const { data, error } = await resend.emails.send({ from: from || FROM_INQUIRY, to, subject, html });
+    if (error) {
+      console.error("Resend error for '" + subject + "':", error);
+      return { skipped: false, error: error };
+    }
+    console.log("Email sent: '" + subject + "' → " + to + (data && data.id ? " (id " + data.id + ")" : ""));
+    return { skipped: false, error: null, id: data && data.id };
   } catch (err) {
     console.error("Email send failed for '" + subject + "':", err);
     return { skipped: false, error: err };

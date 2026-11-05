@@ -85,6 +85,11 @@ header/footer partials load via `fetch()`, which browsers block over `file://`.
 - Stripe API version is pinned to `2024-06-20` in the function client config.
 - Webhook endpoint: `/.netlify/functions/stripe-webhook`, event `checkout.session.completed`.
   The signature is verified with `STRIPE_WEBHOOK_SECRET`; unverified requests get a 400.
+- Fallback email: if the webhook is missing or delayed, the payment success page
+  (`booking-confirmation.html?type=prepay`) calls `/.netlify/functions/confirm-payment`,
+  which re-fetches the Checkout Session and sends the confirmation emails. Both the
+  webhook and the fallback mark `emailsSent` / `pmsEntered` in the session metadata so
+  the guest doesn't receive duplicate emails.
 
 Forward webhooks locally with the Stripe CLI:
 
