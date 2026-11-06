@@ -16,6 +16,9 @@ const { sendBookingEmails } = require("./booking");
 function bookingFromMetadata(m) {
   m = m || {};
   const am = String(m.amenities || "");
+  const prepayApplied = m.discountApplied === "prepay10";
+  const promoApplied = m.discountApplied === "promo" && !!m.promoCode;
+  const discountAmount = Number(m.discountAmount) || 0;
   return {
     location: m.location, roomType: m.roomType,
     checkIn: m.checkIn, checkOut: m.checkOut,
@@ -29,10 +32,11 @@ function bookingFromMetadata(m) {
     specialRequests: m.specialRequests || "",
     subtotal: Number(m.subtotal) || 0,
     paymentOption: "prepay",
-    prepayDiscountApplied: true,
+    prepayDiscountApplied: prepayApplied,
+    prepayDiscount: prepayApplied ? discountAmount : 0,
     promoCode: m.promoCode || null,
-    promoDiscount: Number(m.discountAmount) || 0,
-    promoDiscountApplied: m.discountApplied === "promo" && !!m.promoCode,
+    promoDiscount: promoApplied ? discountAmount : 0,
+    promoDiscountApplied: promoApplied,
     amountChargedNow: 0, // filled from amount_total below
     amountDueAtCheckIn: 0
   };

@@ -80,16 +80,38 @@ function computeDiscount(promo, subtotal) {
 }
 
 /* Prepay comparison — returns the single winning discount (never stacked):
-   the larger of the 10% prepay discount vs the promo. { error } if promo invalid. */
-function resolvePrepayDiscount(promoCode, location, subtotal) {
-  const prepay = round2(Number(subtotal) * 0.1);
-  if (!promoCode) return { amount: prepay, applied: "prepay10", promoCode: null };
+   the larger of the 10% prepay discount vs the promo. The 10% prepay discount
+   only applies when the guest books PREPAY_ADVANCE_DAYS+ days before check-in
+   (last-minute bookings can still pay online, but get no discount). Promo
+   codes apply regardless of lead time. { error } if the promo is invalid. */
+const PREPAY_ADVANCE_DAYS = 3;
+
+function daysFromToday(dateStr) {
+  const now = new Date();
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const target = dateStr ? new Date(dateStr + "T00:00:00Z").getTime() : NaN;
+  if (!Number.isFinite(target)) return 0;
+  return Math.round((target - today) / 86400000);
+}
+
+function prepayDiscountEligible(checkIn) {
+  return daysFromToday(checkIn) >= PREPAY_ADVANCE_DAYS;
+}
+
+function resolvePrepayDiscount(promoCode, location, subtotal, checkIn) {
+  const prepay = prepayDiscountEligible(checkIn) ? round2(Number(subtotal) * 0.1) : 0;
+  if (!promoCode) {
+    return prepay > 0
+      ? { amount: prepay, applied: "prepay10", promoCode: null }
+      : { amount: 0, applied: "none", promoCode: null };
+  }
   const v = validateCode(promoCode, location);
   if (!v.valid) return { error: v.error };
   const promo = computeDiscount(v.promo, subtotal);
-  return promo > prepay
-    ? { amount: promo, applied: "promo", promoCode: v.promo.code }
-    : { amount: prepay, applied: "prepay10", promoCode: null };
+  if (promo > prepay) return { amount: promo, applied: "promo", promoCode: v.promo.code };
+  return prepay > 0
+    ? { amount: prepay, applied: "prepay10", promoCode: null }
+    : { amount: 0, applied: "none", promoCode: null };
 }
 
 /* DEV-ONLY persistence: writing the JSON fails on Netlify's read-only
@@ -109,4 +131,4 @@ function incrementUsed(code) {
   }
 }
 
-module.exports = { validateCode, computeDiscount, resolvePrepayDiscount, incrementUsed, round2 };
+module.exports = { validateCode, computeDiscount, resolvePrepayDiscount, incrementUsed, round2, prepayDiscountEligible };

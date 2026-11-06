@@ -45,6 +45,7 @@
   var PROPERTY_CODES = { "addis-ababa": "ADD", nairobi: "NBO" };
   var AMENITY_PRICES = { airportPickup: 15, breakfastPerDayPerGuest: 5, laundry: 10 };
   var PREPAY_RATE = 0.9;
+  var PREPAY_ADVANCE_DAYS = 3; // 10% prepay discount requires booking this many days ahead
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   var OFFLINE_MSG = "Couldn't reach the booking system right now — please try again in a moment.";
   /* Fallback nightly rates and amenity prices, fetched from
@@ -263,6 +264,25 @@
     return ms > 0 ? Math.round(ms / 86400000) : 0;
   }
 
+  /* Calendar days from "today" (UTC) to the check-in date. */
+  function daysFromToday(dateStr) {
+    if (!dateStr) return 0;
+    var now = new Date();
+    var today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    var target = new Date(dateStr + "T00:00:00Z").getTime();
+    return Math.round((target - today) / 86400000);
+  }
+
+  /* 10% prepay discount only when booking at least PREPAY_ADVANCE_DAYS ahead. */
+  function prepayDiscountEligible() {
+    return !!state.checkIn && daysFromToday(state.checkIn) >= PREPAY_ADVANCE_DAYS;
+  }
+
+  /* Nairobi private rooms are advance-payment only (no "reserve" option). */
+  function requiresPrepay() {
+    return state.location === "nairobi" && state.category === "private";
+  }
+
   /* Amenity prices for the current location: data/room-rates.json may override
      individual prices per location (amenitiesByLocation) — e.g. breakfast is
      $3/day in Addis Ababa and $5/day in Nairobi. */
@@ -292,9 +312,11 @@
     if (state.amenities.breakfast) total += prices.breakfastPerDayPerGuest * state.nights * state.guests;
     if (state.amenities.laundry) total += prices.laundry;
     state.subtotal = round2(total);
-    state.prepayDiscountApplied = state.onlinePaymentEnabled && state.paymentOption === "prepay";
-    state.amountChargedNow = state.prepayDiscountApplied ? round2(state.subtotal * PREPAY_RATE) : 0;
-    state.amountDueAtCheckIn = state.prepayDiscountApplied ? 0 : state.subtotal;
+    var prepay = state.onlinePaymentEnabled && state.paymentOption === "prepay";
+    state.prepayDiscountApplied = prepay && prepayDiscountEligible();
+    var discount = state.prepayDiscountApplied ? round2(state.subtotal * (1 - PREPAY_RATE)) : 0;
+    state.amountChargedNow = prepay ? round2(state.subtotal - discount) : 0;
+    state.amountDueAtCheckIn = prepay ? 0 : state.subtotal;
     if (pricingHook) pricingHook.adjust(state);
     renderSummary();
     return state;
@@ -312,8 +334,11 @@
     lines.push(["Subtotal", priced ? money(state.subtotal) : "TBC — rate confirmed at check-in"]);
     if (pricingHook) pricingHook.promoLines(state).forEach(function (l) { lines.push(l); });
     if (state.paymentOption === "prepay" && state.onlinePaymentEnabled) {
-      var discLabel = state.promoDiscountApplied ? "Promo " + state.promoCode : "10% discount";
-      lines.push([discLabel, "−" + money(state.subtotal - state.amountChargedNow)]);
+      var disc = round2(state.subtotal - state.amountChargedNow);
+      if (disc > 0) {
+        var discLabel = state.promoDiscountApplied ? "Promo " + state.promoCode : "10% discount";
+        lines.push([discLabel, "−" + money(disc)]);
+      }
       lines.push(["Total due now", money(state.amountChargedNow)]);
       lines.push(["Due at check-in", money(0)]);
     } else {
@@ -421,6 +446,32 @@
     if (typeof window.initGalleries === "function") window.initGalleries(media);
   }
 
+  /* Payment-option UI: Nairobi private rooms are advance-payment only. When
+     forced, the "reserve" card is hidden and prepay is selected. */
+  function updatePaymentOptionUi(force) {
+    var reserveCard = document.querySelector('label[for="bk-pay-reserve"]');
+    var prepay = $("bk-pay-prepay");
+    var note = $("bk-payment-note");
+    if (reserveCard) reserveCard.style.display = force ? "none" : "";
+    if (prepay && force) prepay.checked = true;
+    if (note) {
+      note.textContent = force
+        ? "Nairobi private rooms must be paid in advance — online payment only."
+        : "Book 3 or more days in advance and save 10% when you pay online.";
+    }
+  }
+
+  function syncPaymentOptions() {
+    var force = requiresPrepay();
+    if (force) {
+      state.paymentOption = "prepay";
+    } else {
+      var pay = document.querySelector('input[name="paymentOption"]:checked');
+      state.paymentOption = pay ? pay.value : "reserve";
+    }
+    updatePaymentOptionUi(force);
+  }
+
   function selectRoom(room) {
     state.roomId = room.id;
     state.roomType = room.type;
@@ -437,6 +488,7 @@
     $("booking-detail").hidden = false;
     $("booking-hint").hidden = true;
     renderRooms();
+    syncPaymentOptions();
     recalculateTotal();
     $("booking-section").scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -445,6 +497,7 @@
     state.location = loc;
     state.roomId = "";
     state.roomType = "";
+    state.category = "";
     state.rate = null;
     state.availableUnits = null;
     document.querySelectorAll(".location-tab").forEach(function (tab) {
@@ -456,6 +509,7 @@
     $("booking-hint").hidden = false;
     renderRooms();
     renderAmenityLabels();
+    syncPaymentOptions();
     recalculateTotal();
     fetchPricing(loc).then(function () {
       renderRooms();
@@ -726,7 +780,7 @@
   }
 
   function proceedWithBooking() {
-    if (state.paymentOption === "prepay" && state.onlinePaymentEnabled) {
+    if ((state.paymentOption === "prepay" && state.onlinePaymentEnabled) || requiresPrepay()) {
       startStripeCheckout();
     } else {
       submitBooking();
@@ -788,10 +842,11 @@
     state.amenities.airportPickup = $("bk-am-airport").checked;
     state.amenities.breakfast = $("bk-am-breakfast").checked;
     state.amenities.laundry = $("bk-am-laundry").checked;
-    var pay = document.querySelector('input[name="paymentOption"]:checked');
-    state.paymentOption = pay ? pay.value : "reserve";
+    syncPaymentOptions();
     $("bk-submit").textContent =
-      state.paymentOption === "prepay" && state.onlinePaymentEnabled ? "Pay Now — Save 10%" : "Submit Reservation";
+      state.paymentOption === "prepay" && state.onlinePaymentEnabled
+        ? (prepayDiscountEligible() ? "Pay Now — Save 10%" : "Pay Now")
+        : "Submit Reservation";
     recalculateTotal();
   }
 

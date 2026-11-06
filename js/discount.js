@@ -3,7 +3,7 @@
    (see js/booking.js header comment). The hook adjusts state AFTER booking.js's
    own totals are computed, so the base price-calc logic is untouched:
      reserve: amountDueAtCheckIn = subtotal − promoDiscount
-     prepay:  amountChargedNow  = subtotal − max(promoDiscount, 10% prepay)
+     prepay:  amountChargedNow  = subtotal − max(promoDiscount, 10% prepay [3+ days ahead])
    The two discounts never stack. Client numbers are display-only — the server
    always re-validates the code and recalculates the amounts. */
 (function () {
@@ -46,7 +46,10 @@
     if (!applied || state.subtotal <= 0 || !locationOk(state)) return;
     var promo = discountFor(state.subtotal);
     if (state.paymentOption === "prepay" && state.onlinePaymentEnabled) {
-      if (promo <= round2(state.subtotal * 0.1)) return; // 10% prepay wins — promo not applied
+      // Compare against the prepay discount actually in play (0 when booked
+      // last-minute) so a promo still applies when the 10% doesn't.
+      var prepayDisc = state.prepayDiscountApplied ? round2(state.subtotal * 0.1) : 0;
+      if (promo <= prepayDisc) return; // prepay discount (or no discount) wins
       state.amountChargedNow = round2(state.subtotal - promo);
     } else {
       state.amountDueAtCheckIn = round2(state.subtotal - promo);

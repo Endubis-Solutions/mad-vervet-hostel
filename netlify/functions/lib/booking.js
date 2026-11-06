@@ -62,7 +62,9 @@ function paymentLine(b) {
   if (b.paymentOption === "prepay") {
     const label = b.promoDiscountApplied && b.promoCode
       ? "promo code " + b.promoCode + " (−" + money(b.promoDiscount) + ") applied"
-      : "10% prepay discount applied";
+      : b.prepayDiscountApplied
+        ? "10% prepay discount applied"
+        : "no discount applied";
     return "Your payment of " + money(b.amountChargedNow) + " (" + label + ") " +
       "has been received in full — nothing is due at check-in.";
   }

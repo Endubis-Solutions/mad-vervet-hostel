@@ -1,8 +1,10 @@
 /* create-checkout-session — "prepay" path. The subtotal is recomputed
    server-side from data/room-rates.json (see lib/rates.js) and the charged
    amount is subtotal − max(10% prepay discount, promo discount) — the two
-   never stack. Client amounts are never trusted: if the room can't be priced
-   from the rates table the request fails closed (no charge). */
+   never stack. The 10% prepay discount applies only when booked 3+ days in
+   advance (see lib/promo.js); last-minute prepay charges full subtotal.
+   Client amounts are never trusted: if the room can't be priced from the
+   rates table the request fails closed (no charge). */
 const Stripe = require("stripe");
 const { resolvePrepayDiscount, round2 } = require("./lib/promo");
 const { computeSubtotal } = require("./lib/rates");
@@ -66,12 +68,14 @@ exports.handler = async (event) => {
   }
   const subtotal = priced.subtotal;
   booking.subtotal = subtotal; // server-computed value flows into metadata + emails
-  const disc = resolvePrepayDiscount(booking.promoCode, booking.location, subtotal);
+  const disc = resolvePrepayDiscount(booking.promoCode, booking.location, subtotal, booking.checkIn);
   if (disc.error) return json(400, { error: "Promo code rejected: " + disc.error });
   booking._promo = disc; // { amount, applied: "prepay10"|"promo", promoCode }
   const charge = round2(subtotal - disc.amount);
   if (!(charge > 0)) return json(400, { error: "Invalid amount to charge." });
-  const label = disc.applied === "promo" ? "promo code " + disc.promoCode : "10% prepay discount";
+  const label = disc.applied === "promo" ? "promo code " + disc.promoCode
+    : disc.applied === "prepay10" ? "10% prepay discount"
+    : "online payment in full";
   const stripe = Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: STRIPE_API_VERSION });
   const base = baseUrl(event);
   const session = await stripe.checkout.sessions.create({

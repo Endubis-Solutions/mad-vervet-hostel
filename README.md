@@ -80,8 +80,9 @@ header/footer partials load via `fetch()`, which browsers block over `file://`.
 ## Stripe
 
 - The prepay flow charges a server-computed amount — subtotal minus the larger of the
-  10% prepay discount or an applied promo code (never stacked) — via a Stripe Checkout
-  Session in payment mode, USD. The reserve flow never touches Stripe.
+  10% prepay discount (when booked 3+ days ahead) or an applied promo code (never
+  stacked) — via a Stripe Checkout Session in payment mode, USD. The reserve flow
+  never touches Stripe.
 - Stripe API version is pinned to `2024-06-20` in the function client config.
 - Webhook endpoint: `/.netlify/functions/stripe-webhook`, event `checkout.session.completed`.
   The signature is verified with `STRIPE_WEBHOOK_SECRET`; unverified requests get a 400.
@@ -90,6 +91,11 @@ header/footer partials load via `fetch()`, which browsers block over `file://`.
   which re-fetches the Checkout Session and sends the confirmation emails. Both the
   webhook and the fallback mark `emailsSent` / `pmsEntered` in the session metadata so
   the guest doesn't receive duplicate emails.
+- Prepay discount rules: the 10% prepay discount applies only when the guest books
+  3+ days before check-in (`lib/promo.js` `prepayDiscountEligible`); last-minute
+  bookings can still pay online but are charged the full subtotal. Nairobi private
+  rooms are advance-payment only — the "reserve" option is hidden for them and the
+  reserve fallback (`submit-reservation.js`) rejects them.
 
 Forward webhooks locally with the Stripe CLI:
 
@@ -134,7 +140,7 @@ see `netlify/functions/lib/promo.js`). The booking page validates codes via
 auto-applies a `?promo=CODE` URL parameter. Servers always re-validate and
 recompute: the reserve path subtracts the promo from the check-in amount; the
 prepay path charges subtotal minus the **larger** of the promo or the 10% prepay
-discount (never stacked). `usedCount` increments only when the promo was the
+discount (booked 3+ days ahead; never stacked). `usedCount` increments only when the promo was the
 discount actually applied and the booking is confirmed (reservation submitted /
 `checkout.session.completed` webhook).
 
