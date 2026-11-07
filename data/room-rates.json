@@ -1,7 +1,8 @@
 {
   "amenities": { "airportPickup": 15, "breakfastPerDayPerGuest": 5, "laundry": 10 },
   "amenitiesByLocation": {
-    "addis-ababa": { "breakfastPerDayPerGuest": 3 }
+    "addis-ababa": { "breakfastPerDayPerGuest": 3 },
+    "nairobi": { "airportPickup": 20 }
   },
   "addis-ababa": {
     "mixed-dorm-ensuite-8": { "bed": 10 },

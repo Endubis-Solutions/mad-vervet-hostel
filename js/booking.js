@@ -298,6 +298,8 @@
   function renderAmenityLabels() {
     var el = $("bk-am-breakfast-price");
     if (el) el.textContent = "$" + amenityPrices().breakfastPerDayPerGuest;
+    var airportEl = $("bk-am-airport-price");
+    if (airportEl) airportEl.textContent = "$" + amenityPrices().airportPickup;
   }
 
   /* Dorms: every guest needs a bed (units = guests, priced per bed per

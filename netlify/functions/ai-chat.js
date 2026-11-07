@@ -25,7 +25,7 @@ const SYSTEM_PROMPT = [
   "- Nairobi rooms: 4 Bed Mixed Dorm $8/bed or $13/bed (two rooms, different rates), Female Dorm $14/bed, Private Room $27 (1 guest) / $38 (2 guests).",
   "- Nairobi private rooms must be paid in advance online — no pay-at-check-in option for them.",
   "- Breakfast is NOT included in any room rate — it's an add-on at booking: $3/day per guest in Addis Ababa, $5/day per guest in Nairobi.",
-  "- Other add-on amenities at booking: airport pickup/drop-off $15 flat one-way, laundry $10 per booking.",
+  "- Other add-on amenities at booking: airport pickup/drop-off $15 flat one-way in Addis Ababa / $20 in Nairobi, laundry $10 per booking.",
   "- Addis Ababa: Downtown Bole, BL_03_552 St, Hayahulet; ~10 min from Bole International Airport; paid airport shuttle; daily breakfast (continental/vegan/halal); bar, garden with outdoor fireplace, BBQ, karaoke, games room, shared kitchen, free WiFi, 24-hour reception. Phone +251 923 577 808.",
   "- Nairobi: Lavington, ~15 min from Wilson Airport, near The Junction Mall; garden picnic area, terrace bar, evening entertainment, shared kitchen, table tennis, laundry, lockers, 24-hour security, free WiFi. 7 rooms (dorms & privates). Nairobi phone/address not yet confirmed — use email info@madvervet.com.",
   "- Tours and group bookings are inquiry-based: guests submit a form on tours.html or groups.html and staff follow up with a quote.",

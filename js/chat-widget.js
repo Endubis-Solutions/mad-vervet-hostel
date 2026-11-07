@@ -35,7 +35,7 @@
     { label: "Airport transport", answer:
       "Addis Ababa is about 10 minutes from Bole International Airport — we run a paid airport shuttle, " +
       "and you can add airport pickup/drop-off for $15 flat (one-way) when booking. " +
-      "Nairobi is about 15 minutes from Wilson Airport." },
+      "Nairobi is about 15 minutes from Wilson Airport — airport pickup/drop-off there is $20 flat (one-way)." },
     { label: "Tours", answer:
       "Yes! Tours are inquiry-based — send a request via tours.html and our staff will follow up " +
       "with a quote and options." },
