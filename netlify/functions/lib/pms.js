@@ -91,7 +91,26 @@ async function planAssignments(propertyCode, roomNames, units, checkIn, checkOut
   }
 }
 
-async function createPmsBookings({ propertyCode, category, roomNames, units, checkIn, checkOut, guest }) {
+/* Payment/booking extras for the PMS booking POST. When a Stripe payment
+   completed, each unit's payload carries the per-unit charge so the PMS folio
+   matches what the guest paid (including prepay/promo discounts) and the
+   payment lands on the ledger. reference is unique per unit so webhook
+   retries never double-record. */
+function unitExtras(i, units, checkIn, checkOut, extras) {
+  if (!extras) return {};
+  const out = {};
+  if (extras.guests && units === 1) out.guests = extras.guests; // private rooms: real occupancy
+  const charged = Number(extras.amountChargedNow) || 0;
+  if (charged > 0 && extras.sessionId) {
+    const nights = Math.max(1, Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000));
+    const perUnit = Math.round((charged * 100) / units);
+    out.pricePerNightMinor = Math.max(1, Math.round(perUnit / nights));
+    out.payment = { amountMinor: perUnit, currency: "USD", method: "card", reference: extras.sessionId + ":" + i };
+  }
+  return out;
+}
+
+async function createPmsBookings({ propertyCode, category, roomNames, units, checkIn, checkOut, guest, extras }) {
   const assignments = await planAssignments(propertyCode, roomNames, units, checkIn, checkOut);
   const booked = [];
   for (let i = 0; i < units; i++) {
@@ -104,7 +123,8 @@ async function createPmsBookings({ propertyCode, category, roomNames, units, che
         fullName: (guest && guest.name) || "",
         guestEmail: (guest && guest.email) || "",
         phone: (guest && guest.phone) || ""
-      }
+      },
+      ...unitExtras(i, units, checkIn, checkOut, extras)
     };
     if (assignments && assignments[i]) payload.roomCategory = assignments[i];
     else payload.roomType = category === "private" ? "private" : "dorm";
