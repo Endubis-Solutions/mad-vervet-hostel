@@ -27,7 +27,9 @@
    booking is submitted anyway; if the booking POST itself fails, the
    reservation falls back to /.netlify/functions/submit-reservation (email)
    so no booking is lost — staff confirm availability manually. When the
-   check succeeds, unavailable/at-capacity dates are blocked as usual.
+   check succeeds, unavailable/at-capacity dates are blocked as usual —
+   except dorms, which always show as available and always book through
+   (a PMS sold-out on a dorm drops to the email fallback, never blocks).
    Exposes window.MadVervetBooking so later work (e.g. promo codes) can
    extend pricing without rewriting this file.
    Promo extension point (used by js/discount.js): setPricingHook() registers
@@ -129,6 +131,10 @@
     return found;
   }
 
+  /* Dorms are always bookable: whatever the PMS reports (even sold out), the
+     site shows the dorm as available and lets the booking through. remaining
+     is floored at the room's maxUnits so the guest selector is never squeezed
+     by a sold-out PMS response. Private rooms still follow live availability. */
   function checkAvailability(location, roomId, units, checkIn, checkOut) {
     var room = roomById(roomId);
     var category = room ? room.category : "dorm";
@@ -144,6 +150,10 @@
         var bedCat = bed.category && bed.category.name ? bed.category.name.toLowerCase() : null;
         return bedCat && cmsCategory ? bedCat === cmsCategory : bed.roomType === category;
       }).length;
+      if (category === "dorm") {
+        var floor = Math.max(units, room && room.maxUnits ? room.maxUnits : 1);
+        return { available: true, remaining: Math.max(remaining, floor) };
+      }
       return { available: remaining >= units, remaining: remaining };
     });
   }
@@ -766,6 +776,15 @@
         });
       })
       .catch(function (err) {
+        // Dorms are always bookable — a PMS sold-out (409) doesn't block the
+        // guest; the reservation is captured by the email fallback instead.
+        if (err && err.soldOut && state.category === "dorm") {
+          setStatus("Sending your reservation by email — we'll confirm your beds shortly…", true);
+          submitReservationFallback(err.bookedCount).catch(function () {
+            setStatus(OFFLINE_MSG, false);
+          });
+          return;
+        }
         if (err && err.soldOut) {
           setStatus("Someone just booked the last of these " + plural(state.unitLabel, 2) +
             " — fewer may still be available. Check the availability note and try again." +
