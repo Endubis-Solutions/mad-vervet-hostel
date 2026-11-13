@@ -37,7 +37,7 @@ The site talks to the PMS at `https://pms.madvervet.com` (CORS is open for
   counts per category, matched to website rooms by `cmsRooms` (physical room names)
   in `data/rooms.json`.
 - `POST /api/bookings` — creates one bed/room per call. `roomCategory` must be
-  a PMS category code (e.g. `female-dorm`), not a physical room name. The site
+  a PMS category code (e.g. `dorm1`, `double1`), not a physical room name. The site
   matches live availability beds' category codes to the website room's
   `cmsRooms` names to select the correct category — keeping Nairobi's differently
   priced mixed dorms and Addis' Single Rooms mapped correctly.
@@ -47,6 +47,11 @@ The site talks to the PMS at `https://pms.madvervet.com` (CORS is open for
   type). Reserve bookings are created from the browser; **prepaid bookings are
   created by `stripe-webhook` after payment** — if PMS entry fails or is
   partial, staff get an email with a manual-entry note (no booking is lost).
+- Dorms are always bookable: the site never blocks a dorm booking. If the PMS
+  answers 409 (sold out), the booking is retried once with
+  `allowOverbooking: true` — the PMS then places the stay on its closed-for-sale
+  overflow room (`<category>-overflow`), where staff see it on the timeline.
+  Only if that also fails does the reservation drop to the email fallback.
 - There is no pricing endpoint — rates live in `data/room-rates.json` (see below).
 
 ## Chat widget (AI FAQ)

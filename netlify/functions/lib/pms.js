@@ -1,7 +1,7 @@
 /* PMS client — creates bookings at pms.madvervet.com after a Stripe payment
   completes (used by stripe-webhook). The PMS books ONE unit per call: dorms
   one bed per guest, private rooms one room. Bookings use the PMS category
-  code (`roomCategory`, e.g. "female-dorm") matched from live availability;
+  code (`roomCategory`, e.g. "dorm1"/"double1") matched from live availability;
   website physical room names in cmsRooms are used to choose the right code
   when multiple priced rooms share a category. The PMS accepts exactly one of
   roomCategory / roomType; if availability can't be fetched we fall back to
@@ -133,11 +133,18 @@ async function createPmsBookings({ propertyCode, category, roomNames, categoryCo
     try {
       // Do not retry booking POSTs: a timeout/5xx can happen after the PMS
       // created the booking, so retrying could create a duplicate.
-      const res = await fetch(PMS_BASE + "/api/bookings", {
+      // The single exception is a dorm 409 — that first attempt booked
+      // nothing, so retrying once with allowOverbooking (the PMS places the
+      // stay on its closed-for-sale overflow room) is safe.
+      const post = (body) => fetch(PMS_BASE + "/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(body)
       });
+      let res = await post(payload);
+      if (res.status === 409 && category === "dorm") {
+        res = await post({ ...payload, allowOverbooking: true });
+      }
       if (res.status === 201) {
         const data = await res.json().catch(() => ({}));
         booked.push(data.bookingId || "unknown-id");

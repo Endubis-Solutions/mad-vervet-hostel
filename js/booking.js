@@ -28,8 +28,10 @@
    reservation falls back to /.netlify/functions/submit-reservation (email)
    so no booking is lost — staff confirm availability manually. When the
    check succeeds, unavailable/at-capacity dates are blocked as usual —
-   except dorms, which always show as available and always book through
-   (a PMS sold-out on a dorm drops to the email fallback, never blocks).
+   except dorms, which always show as available and always book through:
+   a PMS sold-out on a dorm is retried once with allowOverbooking (the PMS
+   places the stay on its overflow room) and only drops to the email
+   fallback if that too fails.
    Exposes window.MadVervetBooking so later work (e.g. promo codes) can
    extend pricing without rewriting this file.
    Promo extension point (used by js/discount.js): setPricingHook() registers
@@ -683,10 +685,23 @@
             else payload.roomType = state.category;
             // Do not retry booking POSTs: a timeout/5xx can happen after the
             // PMS created the booking, so retrying could book a duplicate.
-            return fetch(API_BASE + "/api/bookings", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload)
+            // The single exception is a dorm 409 — that first attempt booked
+            // nothing, so retrying once with allowOverbooking (the PMS places
+            // the stay on its closed-for-sale overflow room) is safe.
+            function post(body) {
+              return fetch(API_BASE + "/api/bookings", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+              });
+            }
+            return post(payload).then(function (res) {
+              if (res.status === 409 && state.category === "dorm") {
+                var retry = JSON.parse(JSON.stringify(payload));
+                retry.allowOverbooking = true;
+                return post(retry);
+              }
+              return res;
             });
           }).then(function (res) {
             if (res.status === 409) {
@@ -783,8 +798,10 @@
         });
       })
       .catch(function (err) {
-        // Dorms are always bookable — a PMS sold-out (409) doesn't block the
-        // guest; the reservation is captured by the email fallback instead.
+        // Dorms are always bookable — a PMS sold-out (409) was already retried
+        // with allowOverbooking inside createBookings; only if that also
+        // failed (older PMS, or overflow full) does the reservation drop to
+        // the email fallback instead of blocking the guest.
         if (err && err.soldOut && state.category === "dorm") {
           setStatus("Sending your reservation by email — we'll confirm your beds shortly…", true);
           submitReservationFallback(err.bookedCount).catch(function () {
