@@ -82,11 +82,12 @@
         "id": "mixed-dorm-4",
         "type": "4 Bed Mixed Dorm",
         "category": "dorm",
-        "cmsCategory": "4 Bed Mixed Dorm",
-        "cmsRooms": ["Kisumu", "Masai Mara"],
+        "cmsCategory": "Mixed Dorm",
+        "cmsCategoryCode": "dorm1",
+        "cmsRooms": ["Masai Mara"],
         "note": "Shared dorm",
         "unitLabel": "bed",
-        "maxUnits": 8,
+        "maxUnits": 6,
         "images": [
           { "src": "images/nairobi/dorm-01.jpg", "alt": "Mixed dorm with wooden bunk beds and mosquito nets" },
           { "src": "images/nairobi/dorm-03.jpg", "alt": "Dorm bunks with privacy curtains" }
@@ -96,11 +97,12 @@
         "id": "mixed-dorm-4-b",
         "type": "4 Bed Mixed Dorm",
         "category": "dorm",
-        "cmsCategory": "4 Bed Mixed Dorm",
-        "cmsRooms": ["Turkana"],
+        "cmsCategory": "Mixed Dorm Deluxe",
+        "cmsCategoryCode": "dorm2",
+        "cmsRooms": ["Kisumu", "Turkana"],
         "note": "Shared dorm",
         "unitLabel": "bed",
-        "maxUnits": 4,
+        "maxUnits": 6,
         "images": [
           { "src": "images/nairobi/dorm-01.jpg", "alt": "Mixed dorm with wooden bunk beds and mosquito nets" },
           { "src": "images/nairobi/dorm-02.jpg", "alt": "Dorm bunks under a sloped wooden ceiling" }

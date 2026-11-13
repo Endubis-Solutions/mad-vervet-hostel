@@ -76,7 +76,7 @@ async function enterInPms(booking, session) {
   }
   const units = info.category === "dorm" ? booking.guests : 1;
   const result = await createPmsBookings({
-    propertyCode, category: info.category, roomNames: info.cmsRooms, units,
+    propertyCode, category: info.category, roomNames: info.cmsRooms, categoryCode: info.categoryCode, units,
     checkIn: booking.checkIn, checkOut: booking.checkOut, guest: booking.guest,
     extras: { guests: booking.guests, amountChargedNow: booking.amountChargedNow, sessionId: session.id }
   });

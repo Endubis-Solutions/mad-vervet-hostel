@@ -622,7 +622,8 @@
      look "unreachable" even while the PMS was up. We map `cmsRooms` room
      names -> `category.code` from the live availability beds, then return an
      array of codes (one per unit), or null when availability can't be fetched
-     -- the POST then falls back to coarse roomType booking. */
+     -- the POST then falls back to the room's cmsCategoryCode from
+     data/rooms.json, and only then to coarse roomType booking. */
   function planRoomAssignments() {
     var room = roomById(state.roomId);
     var names = room && room.cmsRooms && room.cmsRooms.length ? room.cmsRooms : null;
@@ -656,12 +657,17 @@
      already booked at that point). */
   function createBookings() {
     return planRoomAssignments().then(function (assignments) {
+      var room = roomById(state.roomId);
       var ids = [];
       var chain = Promise.resolve();
       for (var i = 0; i < state.units; i++) {
         (function (roomCategory) {
           chain = chain.then(function () {
-            // The PMS requires exactly one of roomCategory / roomType.
+            // The PMS requires exactly one of roomCategory / roomType. When
+            // live availability couldn't assign a code (sold out or API
+            // hiccup), fall back to the room's configured cmsCategoryCode so
+            // the booking still lands on the right PMS category (e.g. Nairobi
+            // mixed-dorm vs mixed-dorm-deluxe) rather than any free dorm bed.
             var payload = {
               propertyCode: PROPERTY_CODES[state.location],
               checkIn: state.checkIn,
@@ -673,6 +679,7 @@
               }
             };
             if (roomCategory) payload.roomCategory = roomCategory;
+            else if (room && room.cmsCategoryCode) payload.roomCategory = room.cmsCategoryCode;
             else payload.roomType = state.category;
             // Do not retry booking POSTs: a timeout/5xx can happen after the
             // PMS created the booking, so retrying could book a duplicate.

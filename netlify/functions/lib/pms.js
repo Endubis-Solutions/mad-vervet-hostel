@@ -5,7 +5,8 @@
   website physical room names in cmsRooms are used to choose the right code
   when multiple priced rooms share a category. The PMS accepts exactly one of
   roomCategory / roomType; if availability can't be fetched we fall back to
-  coarse roomType booking. Never throws — the caller always sends the
+  the room's configured cmsCategoryCode (rooms.json), then coarse roomType
+  booking. Never throws — the caller always sends the
   confirmation emails, with a manual-entry note when the PMS entry is missing
   or partial (sold-out mid-way, API down). */
 
@@ -44,12 +45,12 @@ const ROOMS = (function () {
   }
 })();
 
-/* Looks up a website room by location + roomId → { category, cmsRooms }. */
+/* Looks up a website room by location + roomId → { category, cmsRooms, categoryCode }. */
 function getRoomInfo(location, roomId) {
   const loc = ROOMS && ROOMS[location];
   if (!loc) return null;
   const room = (loc.rooms || []).find((r) => r.id === roomId);
-  return room ? { category: room.category, cmsRooms: room.cmsRooms || [] } : null;
+  return room ? { category: room.category, cmsRooms: room.cmsRooms || [], categoryCode: room.cmsCategoryCode || null } : null;
 }
 
 /* Assigns each unit to a PMS category code using live availability.
@@ -110,7 +111,7 @@ function unitExtras(i, units, checkIn, checkOut, extras) {
   return out;
 }
 
-async function createPmsBookings({ propertyCode, category, roomNames, units, checkIn, checkOut, guest, extras }) {
+async function createPmsBookings({ propertyCode, category, roomNames, categoryCode, units, checkIn, checkOut, guest, extras }) {
   const assignments = await planAssignments(propertyCode, roomNames, units, checkIn, checkOut);
   const booked = [];
   for (let i = 0; i < units; i++) {
@@ -127,6 +128,7 @@ async function createPmsBookings({ propertyCode, category, roomNames, units, che
       ...unitExtras(i, units, checkIn, checkOut, extras)
     };
     if (assignments && assignments[i]) payload.roomCategory = assignments[i];
+    else if (categoryCode) payload.roomCategory = categoryCode; // configured tie (rooms.json) when availability couldn't assign
     else payload.roomType = category === "private" ? "private" : "dorm";
     try {
       // Do not retry booking POSTs: a timeout/5xx can happen after the PMS
