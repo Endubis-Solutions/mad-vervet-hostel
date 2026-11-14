@@ -664,6 +664,7 @@
       var chain = Promise.resolve();
       for (var i = 0; i < state.units; i++) {
         (function (roomCategory) {
+          var lastPayload = null;
           chain = chain.then(function () {
             // The PMS requires exactly one of roomCategory / roomType. When
             // live availability couldn't assign a code (sold out or API
@@ -689,10 +690,11 @@
             // nothing, so retrying once with allowOverbooking (the PMS places
             // the stay on its closed-for-sale overflow room) is safe.
             function post(body) {
+              lastPayload = JSON.stringify(body);
               return fetch(API_BASE + "/api/bookings", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body)
+                body: lastPayload
               });
             }
             return post(payload).then(function (res) {
@@ -708,6 +710,7 @@
               var err = new Error("sold out");
               err.soldOut = true;
               err.bookedCount = ids.length;
+              err.lastPayload = lastPayload;
               throw err;
             }
             if (!res.ok) throw new Error("Booking failed (" + res.status + ")");
@@ -806,7 +809,8 @@
         if (err && err.soldOut && state.category === "dorm") {
           setStatus("Sending your reservation by email — we'll confirm your beds shortly…", true);
           submitReservationFallback("dorm sold out, overbooking retry failed" +
-            (err.bookedCount ? " (" + err.bookedCount + " unit(s) may already be booked)" : "")).catch(function () {
+            (err.bookedCount ? " (" + err.bookedCount + " unit(s) may already be booked)" : "") +
+            " | last PMS payload: " + (err.lastPayload || "?")).catch(function () {
             setStatus(OFFLINE_MSG, false);
           });
           return;
