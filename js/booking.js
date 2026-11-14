@@ -697,15 +697,31 @@
                 body: lastPayload
               });
             }
+            function readBody(res) {
+              return res.json().then(function (body) {
+                return { res: res, body: body };
+              }, function () { return { res: res, body: null }; });
+            }
             return post(payload).then(function (res) {
-              if (res.status === 409 && state.category === "dorm") {
+              // Only a genuine sell-out (BED_OCCUPIED) triggers the dorm
+              // overbooking retry — other 409s (e.g. PMS billing config
+              // errors like CURRENCY_ACCOUNT_MISMATCH) must NOT retry and
+              // must surface their real detail in the fallback email.
+              if (res.status !== 409 || state.category !== "dorm") return readBody(res);
+              return readBody(res).then(function (r) {
+                if (!r.body || r.body.code !== "BED_OCCUPIED") return r;
                 var retry = JSON.parse(JSON.stringify(payload));
                 retry.allowOverbooking = true;
-                return post(retry);
-              }
-              return res;
+                return post(retry).then(readBody);
+              });
             });
-          }).then(function (res) {
+          }).then(function (r) {
+            var res = r.res, body = r.body;
+            if (res.status === 409 && body && body.code !== "BED_OCCUPIED") {
+              var perr = new Error("PMS rejected the booking (409 " + body.code + "): " + (body.detail || body.title || ""));
+              perr.lastPayload = lastPayload;
+              throw perr;
+            }
             if (res.status === 409) {
               var err = new Error("sold out");
               err.soldOut = true;
@@ -713,8 +729,8 @@
               err.lastPayload = lastPayload;
               throw err;
             }
-            if (!res.ok) throw new Error("Booking failed (" + res.status + ")");
-            return res.json();
+            if (!res.ok) throw new Error("Booking failed (" + res.status + ")" + (body && body.detail ? ": " + body.detail : ""));
+            return body;
           }).then(function (body) {
             ids.push(body.bookingId);
           });
