@@ -726,14 +726,15 @@
 
   /* Fallback when the PMS is unreachable: capture the reservation by email
      via the submit-reservation Netlify function so no booking is lost. Staff
-     confirm availability manually and follow up with the guest. */
-  function submitReservationFallback(bookedCount) {
+     confirm availability manually and follow up with the guest. `reason`
+     records WHY the PMS path failed (HTTP status / network error) so the
+     staff notification doubles as a diagnostic. */
+  function submitReservationFallback(reason) {
     var payload = buildPayload();
     payload.paymentOption = "reserve"; // the email path is reserve-only
     payload.specialRequests = (payload.specialRequests ? payload.specialRequests + " " : "") +
-      "[Booking system unreachable — reservation captured by email fallback; please confirm availability manually." +
-      (bookedCount ? " Note: " + bookedCount + " " + plural(payload.unitLabel, bookedCount) +
-        " may already be booked in the PMS before the connection failed." : "") + "]";
+      "[Reservation captured by email fallback — PMS booking failed: " + (reason || "unknown error") +
+      ". Please confirm availability manually.]"
     return fetch("/.netlify/functions/submit-reservation", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -804,7 +805,8 @@
         // the email fallback instead of blocking the guest.
         if (err && err.soldOut && state.category === "dorm") {
           setStatus("Sending your reservation by email — we'll confirm your beds shortly…", true);
-          submitReservationFallback(err.bookedCount).catch(function () {
+          submitReservationFallback("dorm sold out, overbooking retry failed" +
+            (err.bookedCount ? " (" + err.bookedCount + " unit(s) may already be booked)" : "")).catch(function () {
             setStatus(OFFLINE_MSG, false);
           });
           return;
@@ -817,7 +819,7 @@
           refreshAvailability();
         } else {
           setStatus("The booking system is unreachable — sending your reservation by email instead…", true);
-          submitReservationFallback(err && err.bookedCount).catch(function () {
+          submitReservationFallback(err && err.message ? err.message : "unknown error").catch(function () {
             setStatus(OFFLINE_MSG, false);
           });
         }
