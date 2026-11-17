@@ -290,9 +290,10 @@
     return !!state.checkIn && daysFromToday(state.checkIn) >= PREPAY_ADVANCE_DAYS;
   }
 
-  /* Nairobi private rooms are advance-payment only (no "reserve" option). */
+  /* Private rooms (single + double) are advance-payment only — the "reserve"
+     (pay at check-in) option is not available for them. */
   function requiresPrepay() {
-    return state.location === "nairobi" && state.category === "private";
+    return state.category === "private";
   }
 
   /* Amenity prices for the current location: data/room-rates.json may override
@@ -460,8 +461,8 @@
     if (typeof window.initGalleries === "function") window.initGalleries(media);
   }
 
-  /* Payment-option UI: Nairobi private rooms are advance-payment only. When
-     forced, the "reserve" card is hidden and prepay is selected. */
+  /* Payment-option UI: private rooms (single + double) are advance-payment
+     only. When forced, the "reserve" card is hidden and prepay is selected. */
   function updatePaymentOptionUi(force) {
     var reserveCard = document.querySelector('label[for="bk-pay-reserve"]');
     var prepay = $("bk-pay-prepay");
@@ -470,7 +471,7 @@
     if (prepay && force) prepay.checked = true;
     if (note) {
       note.textContent = force
-        ? "Nairobi private rooms must be paid in advance — online payment only."
+        ? "Private and single rooms must be paid in advance — online payment only."
         : "Book 3 or more days in advance and save 10% when you pay online.";
     }
   }
@@ -803,7 +804,9 @@
       });
     }).catch(function (err) {
       setStatus("Couldn't start online payment (" + err.message + "). " +
-        "Please try again, or choose \"Reserve now, pay at the property\".", false);
+        (requiresPrepay()
+          ? "Please try again."
+          : "Please try again, or choose \"Reserve now, pay at the property\"."), false);
     });
   }
 

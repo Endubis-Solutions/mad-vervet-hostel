@@ -27,12 +27,11 @@ function validate(b) {
   return null;
 }
 
-/* Nairobi private rooms are advance-payment only — the "reserve" option must
-   not be available for them. Defense in depth for the email-fallback path
-   (the primary reserve flow is gated in the browser). Fails open when the
-   room can't be resolved so a booking is never lost. */
+/* Private rooms (single + double) are advance-payment only — the "reserve"
+   option must not be available for them. Defense in depth for the
+   email-fallback path (the primary reserve flow is gated in the browser).
+   Fails open when the room can't be resolved so a booking is never lost. */
 function requiresAdvancePayment(booking) {
-  if (booking.location !== "nairobi") return false;
   const info = getRoomInfo(booking.location, booking.roomId);
   return !!(info && info.category === "private");
 }
@@ -48,7 +47,7 @@ exports.handler = async (event) => {
   const err = validate(booking);
   if (err) return json(400, { error: err });
   if (requiresAdvancePayment(booking)) {
-    return json(400, { error: "Nairobi private rooms must be paid in advance — please choose 'Pay in full online'." });
+    return json(400, { error: "Private and single rooms must be paid in advance — please choose 'Pay in full online'." });
   }
   const priced = computeSubtotal(booking);
   const subtotal = priced.error ? Number(booking.subtotal) : priced.subtotal;

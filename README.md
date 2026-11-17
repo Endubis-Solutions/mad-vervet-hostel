@@ -98,9 +98,9 @@ header/footer partials load via `fetch()`, which browsers block over `file://`.
   the guest doesn't receive duplicate emails.
 - Prepay discount rules: the 10% prepay discount applies only when the guest books
   3+ days before check-in (`lib/promo.js` `prepayDiscountEligible`); last-minute
-  bookings can still pay online but are charged the full subtotal. Nairobi private
-  rooms are advance-payment only — the "reserve" option is hidden for them and the
-  reserve fallback (`submit-reservation.js`) rejects them.
+  bookings can still pay online but are charged the full subtotal. Private and
+  single rooms are advance-payment only — the "reserve" option is hidden for them
+  and the reserve fallback (`submit-reservation.js`) rejects them.
 
 Forward webhooks locally with the Stripe CLI:
 
