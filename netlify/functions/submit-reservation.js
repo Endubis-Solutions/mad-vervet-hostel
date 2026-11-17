@@ -57,13 +57,13 @@ exports.handler = async (event) => {
   booking.promoDiscountApplied = false;
   booking.promoDiscount = 0;
   if (booking.promoCode) {
-    const v = validateCode(booking.promoCode, booking.location);
+    const v = await validateCode(booking.promoCode, booking.location);
     if (!v.valid) return json(400, { error: "Promo code rejected: " + v.error });
     booking.promoCode = v.promo.code;
     booking.promoDiscount = computeDiscount(v.promo, subtotal);
     booking.promoDiscountApplied = booking.promoDiscount > 0;
     booking.amountDueAtCheckIn = round2(subtotal - booking.promoDiscount);
-    incrementUsed(v.promo.code); // promo is the applied discount on the reserve path
+    await incrementUsed(v.promo.code); // promo is the applied discount on the reserve path
   }
   const ref = bookingRef();
   await sendBookingEmails(booking, ref);

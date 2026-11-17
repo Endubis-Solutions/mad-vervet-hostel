@@ -68,7 +68,7 @@ exports.handler = async (event) => {
   }
   const subtotal = priced.subtotal;
   booking.subtotal = subtotal; // server-computed value flows into metadata + emails
-  const disc = resolvePrepayDiscount(booking.promoCode, booking.location, subtotal, booking.checkIn);
+  const disc = await resolvePrepayDiscount(booking.promoCode, booking.location, subtotal, booking.checkIn);
   if (disc.error) return json(400, { error: "Promo code rejected: " + disc.error });
   booking._promo = disc; // { amount, applied: "prepay10"|"promo", promoCode }
   const charge = round2(subtotal - disc.amount);

@@ -18,7 +18,7 @@ exports.handler = async (event) => {
   if (!body.code || !String(body.code).trim()) {
     return json(400, { valid: false, error: "Please enter a promo code." });
   }
-  const v = validateCode(body.code, body.location || "");
+  const v = await validateCode(body.code, body.location || "");
   if (!v.valid) return json(200, { valid: false, error: v.error });
   return json(200, {
     valid: true,

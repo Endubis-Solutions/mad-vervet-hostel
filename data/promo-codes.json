@@ -36,5 +36,95 @@
     "maxUses": 3,
     "usedCount": 3,
     "_note": "TEST ONLY — intentionally fully used"
+  },
+  {
+    "code": "MV10-SMJZ",
+    "type": "percent",
+    "value": 10,
+    "appliesTo": "all",
+    "expires": "2027-12-31",
+    "maxUses": 1,
+    "usedCount": 0
+  },
+  {
+    "code": "MV10-QMU5",
+    "type": "percent",
+    "value": 10,
+    "appliesTo": "all",
+    "expires": "2027-12-31",
+    "maxUses": 1,
+    "usedCount": 0
+  },
+  {
+    "code": "MV10-9AR3",
+    "type": "percent",
+    "value": 10,
+    "appliesTo": "all",
+    "expires": "2027-12-31",
+    "maxUses": 1,
+    "usedCount": 0
+  },
+  {
+    "code": "MV10-3R8S",
+    "type": "percent",
+    "value": 10,
+    "appliesTo": "all",
+    "expires": "2027-12-31",
+    "maxUses": 1,
+    "usedCount": 0
+  },
+  {
+    "code": "MV10-2MUM",
+    "type": "percent",
+    "value": 10,
+    "appliesTo": "all",
+    "expires": "2027-12-31",
+    "maxUses": 1,
+    "usedCount": 0
+  },
+  {
+    "code": "MV10-VZ46",
+    "type": "percent",
+    "value": 10,
+    "appliesTo": "all",
+    "expires": "2027-12-31",
+    "maxUses": 1,
+    "usedCount": 0
+  },
+  {
+    "code": "MV10-D9MW",
+    "type": "percent",
+    "value": 10,
+    "appliesTo": "all",
+    "expires": "2027-12-31",
+    "maxUses": 1,
+    "usedCount": 0
+  },
+  {
+    "code": "MV10-H37U",
+    "type": "percent",
+    "value": 10,
+    "appliesTo": "all",
+    "expires": "2027-12-31",
+    "maxUses": 1,
+    "usedCount": 0
+  },
+  {
+    "code": "MV10-5AP9",
+    "type": "percent",
+    "value": 10,
+    "appliesTo": "all",
+    "expires": "2027-12-31",
+    "maxUses": 1,
+    "usedCount": 0
+  },
+  {
+    "code": "MV10-D5VY",
+    "type": "percent",
+    "value": 10,
+    "appliesTo": "all",
+    "expires": "2027-12-31",
+    "maxUses": 1,
+    "usedCount": 0
   }
 ]

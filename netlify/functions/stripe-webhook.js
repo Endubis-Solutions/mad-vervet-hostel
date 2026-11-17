@@ -45,7 +45,7 @@ exports.handler = async (event) => {
     // Send the confirmation emails exactly once (idempotent; the success-page
     // fallback may have already sent them).
     const sent = await sendPrepayEmails({ stripe, session, booking, hostelNote });
-    if (sent.sent && booking.promoDiscountApplied) incrementUsed(booking.promoCode);
+    if (sent.sent && booking.promoDiscountApplied) await incrementUsed(booking.promoCode);
   }
   return json(200, { received: true });
 };

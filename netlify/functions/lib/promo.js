@@ -5,12 +5,14 @@
        now — the discount is computed off the whole subtotal; splitting room cost
        from amenities is a future refinement.)
      appliesTo "<location-slug>": valid only for that location.
-   usedCount is persisted by writing the JSON file — this works in `netlify dev`
-   but NOT in deployed production (read-only filesystem); incrementUsed never
-   throws so a failed write can never break a confirmed booking.
-   Reads try several candidate paths: Netlify's esbuild bundler does not preserve
-   the repo directory layout, so a single __dirname-relative path misses the
-   included file in production. */
+   Usage counts persist in a Netlify Blobs store ("promo-usage") — that's what
+   makes maxUses (e.g. single-use codes) enforceable in production. Outside
+   Netlify (plain `node`, no blob context) the counters fall back to the
+   JSON file's usedCount with best-effort file writes (dev only). The effective
+   count is the MAX of the two sources so neither can undercount.
+   Reads of the JSON try several candidate paths: Netlify's esbuild bundler
+   does not preserve the repo directory layout, so a single __dirname-relative
+   path misses the included file in production. */
 const fs = require("fs");
 const path = require("path");
 
@@ -52,11 +54,39 @@ function loadCodes() {
   }
 }
 
-function codeError(promo, location) {
+/* The Blobs store holding per-code usage counters (text values). Returns
+   null outside Netlify (plain node) so callers fall back to the JSON file. */
+function usageStore() {
+  try {
+    // eslint-disable-next-line global-require
+    const { getStore } = require("@netlify/blobs");
+    return getStore("promo-usage");
+  } catch (e) {
+    return null;
+  }
+}
+
+/* Effective times a code has been redeemed: max(Blobs counter, JSON
+   usedCount). Falls back to the JSON value when Blobs is unreachable so a
+   store hiccup never makes a used single-use code look fresh. */
+async function usedCountOf(promo) {
+  const fileCount = Number(promo.usedCount) || 0;
+  const store = usageStore();
+  if (!store) return fileCount;
+  try {
+    const blob = Number(await store.get(promo.code, { type: "text" })) || 0;
+    return Math.max(blob, fileCount);
+  } catch (e) {
+    console.warn("promo usage read failed, using file count:", e.message);
+    return fileCount;
+  }
+}
+
+async function codeError(promo, location) {
   if (!promo) return "Unknown promo code.";
   const today = new Date().toISOString().slice(0, 10);
   if (promo.expires && promo.expires < today) return "This promo code has expired.";
-  if (promo.maxUses != null && (promo.usedCount || 0) >= promo.maxUses) {
+  if (promo.maxUses != null && (await usedCountOf(promo)) >= promo.maxUses) {
     return "This promo code has been fully used.";
   }
   if (["all", "rooms"].indexOf(promo.appliesTo) === -1 && promo.appliesTo !== location) {
@@ -65,10 +95,10 @@ function codeError(promo, location) {
   return null;
 }
 
-function validateCode(code, location) {
+async function validateCode(code, location) {
   const wanted = String(code || "").trim().toUpperCase();
   const promo = loadCodes().find((c) => c.code === wanted);
-  const error = codeError(promo, location);
+  const error = await codeError(promo, location);
   return error ? { valid: false, error } : { valid: true, promo };
 }
 
@@ -98,14 +128,14 @@ function prepayDiscountEligible(checkIn) {
   return daysFromToday(checkIn) >= PREPAY_ADVANCE_DAYS;
 }
 
-function resolvePrepayDiscount(promoCode, location, subtotal, checkIn) {
+async function resolvePrepayDiscount(promoCode, location, subtotal, checkIn) {
   const prepay = prepayDiscountEligible(checkIn) ? round2(Number(subtotal) * 0.1) : 0;
   if (!promoCode) {
     return prepay > 0
       ? { amount: prepay, applied: "prepay10", promoCode: null }
       : { amount: 0, applied: "none", promoCode: null };
   }
-  const v = validateCode(promoCode, location);
+  const v = await validateCode(promoCode, location);
   if (!v.valid) return { error: v.error };
   const promo = computeDiscount(v.promo, subtotal);
   if (promo > prepay) return { amount: promo, applied: "promo", promoCode: v.promo.code };
@@ -114,10 +144,21 @@ function resolvePrepayDiscount(promoCode, location, subtotal, checkIn) {
     : { amount: 0, applied: "none", promoCode: null };
 }
 
-/* DEV-ONLY persistence: writing the JSON fails on Netlify's read-only
-   production filesystem. Wrapped in try/catch so it can never break a booking;
-   production should move codes to a database/KV store (see README). */
-function incrementUsed(code) {
+/* Marks a code as redeemed. Persists to the Blobs counter (production);
+   also bumps the JSON file's usedCount when that's writable (netlify dev).
+   Wrapped in try/catch so a persistence failure can never break a confirmed
+   booking. */
+async function incrementUsed(code) {
+  try {
+    const promo = loadCodes().find((c) => c.code === code);
+    const store = usageStore();
+    if (store) {
+      const current = promo ? await usedCountOf(promo) : (Number(await store.get(code, { type: "text" })) || 0);
+      await store.set(code, String(current + 1));
+    }
+  } catch (e) {
+    console.warn("promo usage persist (blobs) failed:", e.message);
+  }
   try {
     const p = findCodesPath();
     if (!p) return;
@@ -127,7 +168,7 @@ function incrementUsed(code) {
     promo.usedCount = (promo.usedCount || 0) + 1;
     fs.writeFileSync(p, JSON.stringify(codes, null, 2) + "\n");
   } catch (e) {
-    console.warn("promo usedCount persist failed (read-only fs in production?):", e.message);
+    console.warn("promo usedCount file persist skipped (read-only fs in production):", e.message);
   }
 }
 

@@ -149,9 +149,9 @@ discount (booked 3+ days ahead; never stacked). `usedCount` increments only when
 discount actually applied and the booking is confirmed (reservation submitted /
 `checkout.session.completed` webhook).
 
-> **NOTE — dev-only persistence:** `usedCount` is persisted by writing
-> `data/promo-codes.json`. That works under `netlify dev` but **not** in deployed
-> production, where the functions filesystem is read-only — the write fails, a
-> warning is logged, and the booking still succeeds (usage is just not counted).
-> Before relying on `maxUses` in production, move codes to a database or KV store
-> (e.g. Netlify Blobs, Upstash, DynamoDB).
+> **Usage counting (works in production):** redemptions are counted in a
+> Netlify Blobs store (`promo-usage`), so `maxUses` — including single-use
+> codes (`maxUses: 1`) — is enforced in production. The effective count is the
+> max of the Blobs counter and the JSON `usedCount` (the file is still bumped
+> where writable, i.e. `netlify dev`). If the store is unreachable the file
+> count is used, so a hiccup never makes a used code look fresh.
