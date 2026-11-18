@@ -34,7 +34,7 @@ exports.handler = async (event) => {
   }
   const err = validate(booking);
   if (err) return json(400, { error: err });
-  const priced = computeSubtotal(booking);
+  const priced = await computeSubtotal(booking);
   if (!priced.error) booking.subtotal = priced.subtotal;
   const refs = Array.isArray(booking.refs) ? booking.refs.filter(Boolean) : [];
   const ref = refs.length ? refs.join(", ") : "MV-PMS";

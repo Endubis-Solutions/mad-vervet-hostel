@@ -160,27 +160,32 @@
     });
   }
 
-  /* Room pricing from the CMS, fetched once per location. Rates are dynamic —
-     when the endpoint is missing or the CMS has no rates yet we show
-     "Price on request" instead of a hardcoded number. */
-  var PRICING = {}; // locationKey -> { loaded: true, byRoom: { roomName: { bed?, single?, double? } } } or { error: true }
+  /* Room pricing from the PMS, now date-based: rates are fetched per check-in
+     date (the PMS prices each date separately). Entries are cached per
+     "location|checkIn" so changing the check-in date re-fetches instead of
+     reusing a stale rate. When the endpoint is missing or the PMS has no rate
+     we show "Price on request" instead of a hardcoded number. */
+  var PRICING = {}; // "location|checkIn" -> { loaded: true, byRoom: { roomName: { bed?, single?, double? } } } or { error: true }
 
-  function fetchPricing(location) {
+  function fetchPricing(location, checkIn) {
     var code = PROPERTY_CODES[location];
     if (!code) return Promise.resolve();
-    if (PRICING[location]) return Promise.resolve(PRICING[location]);
-    return fetch(API_BASE + "/api/pricing?propertyCode=" + encodeURIComponent(code))
+    var key = location + "|" + (checkIn || "");
+    if (PRICING[key]) return Promise.resolve(PRICING[key]);
+    var url = API_BASE + "/api/pricing?propertyCode=" + encodeURIComponent(code);
+    if (checkIn) url += "&checkIn=" + encodeURIComponent(checkIn);
+    return fetch(url)
       .then(function (res) {
         if (!res.ok) throw new Error("Pricing request failed (" + res.status + ")");
         return res.json();
       })
       .then(function (data) {
-        PRICING[location] = { loaded: true, byRoom: normalizePricing(data) };
-        return PRICING[location];
+        PRICING[key] = { loaded: true, byRoom: normalizePricing(data) };
+        return PRICING[key];
       })
       .catch(function () {
-        PRICING[location] = { error: true };
-        return PRICING[location];
+        PRICING[key] = { error: true };
+        return PRICING[key];
       });
   }
 
@@ -218,7 +223,7 @@
     var room = roomById(state.roomId);
     if (!room) return null;
     var entry = null;
-    var pricing = PRICING[state.location];
+    var pricing = PRICING[state.location + "|" + (state.checkIn || todayStr())];
     if (pricing && pricing.loaded) {
       (room.cmsRooms || []).forEach(function (name) {
         if (!entry && pricing.byRoom[name]) entry = pricing.byRoom[name];
@@ -231,6 +236,14 @@
       return double ? (entry.double != null ? entry.double : entry.single) : entry.single;
     }
     return entry.bed != null ? entry.bed : entry.single;
+  }
+
+  /* Re-fetches date-based pricing when the check-in date changes, then
+     refreshes the summary so the price reflects the new date. */
+  function refreshPricing() {
+    fetchPricing(state.location, state.checkIn || todayStr()).then(function () {
+      recalculateTotal();
+    });
   }
 
   /* Keeps the quantity selector in sync with live availability for the
@@ -396,7 +409,7 @@
      otherwise. Private rooms show the single/double occupancy rates. */
   function priceLabelFor(room) {
     var entry = null;
-    var pricing = PRICING[state.location];
+    var pricing = PRICING[state.location + "|" + todayStr()];
     if (pricing && pricing.loaded) {
       (room.cmsRooms || []).forEach(function (name) {
         if (!entry && pricing.byRoom[name]) entry = pricing.byRoom[name];
@@ -526,10 +539,15 @@
     renderAmenityLabels();
     syncPaymentOptions();
     recalculateTotal();
-    fetchPricing(loc).then(function () {
+    fetchPricing(loc, todayStr()).then(function () {
       renderRooms();
       recalculateTotal();
     });
+    if (state.checkIn) {
+      fetchPricing(loc, state.checkIn).then(function () {
+        recalculateTotal();
+      });
+    }
   }
 
   function showError(input, msg) {
@@ -889,6 +907,10 @@
       String(d.getDate()).padStart(2, "0");
   }
 
+  function todayStr() {
+    return dateISO(new Date());
+  }
+
   function initDateBounds() {
     var today = new Date();
     $("bk-checkin").min = dateISO(today);
@@ -903,10 +925,12 @@
   }
 
   function syncFromInputs() {
-    var datesChanged = state.checkIn !== $("bk-checkin").value || state.checkOut !== $("bk-checkout").value;
+    var checkInChanged = state.checkIn !== $("bk-checkin").value;
+    var datesChanged = checkInChanged || state.checkOut !== $("bk-checkout").value;
     state.checkIn = $("bk-checkin").value;
     state.checkOut = $("bk-checkout").value;
     if (datesChanged) scheduleAvailabilityRefresh();
+    if (checkInChanged) refreshPricing();
     syncDateBounds();
     state.guests = Number($("bk-guests").value) || 1;
     state.amenities.airportPickup = $("bk-am-airport").checked;

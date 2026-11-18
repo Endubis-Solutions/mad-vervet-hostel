@@ -61,7 +61,7 @@ exports.handler = async (event) => {
   }
   const err = validate(booking);
   if (err) return json(400, { error: err });
-  const priced = computeSubtotal(booking);
+  const priced = await computeSubtotal(booking);
   if (priced.error) {
     console.warn("Prepay pricing failed:", priced.error, "location:", booking.location, "roomId:", booking.roomId);
     return json(400, { error: "This room can't be prepaid online right now — please choose 'Reserve now, pay at the property'." });

@@ -49,7 +49,7 @@ exports.handler = async (event) => {
   if (requiresAdvancePayment(booking)) {
     return json(400, { error: "Private and single rooms must be paid in advance — please choose 'Pay in full online'." });
   }
-  const priced = computeSubtotal(booking);
+  const priced = await computeSubtotal(booking);
   const subtotal = priced.error ? Number(booking.subtotal) : priced.subtotal;
   booking.subtotal = subtotal;
   booking.amountChargedNow = 0;

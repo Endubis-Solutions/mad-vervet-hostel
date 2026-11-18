@@ -53,6 +53,45 @@ function getRoomInfo(location, roomId) {
   return room ? { category: room.category, cmsRooms: room.cmsRooms || [], categoryCode: room.cmsCategoryCode || null } : null;
 }
 
+/* Fetches date-based pricing from the PMS for a property + check-in date. The
+   PMS prices each date separately, so the check-in date selects which rates
+   apply. Returns { byRoom: { roomName: { bed?, single?, double? } } } or null
+   when the pricing API is unreachable. */
+async function fetchPricing(propertyCode, checkIn) {
+  if (!propertyCode || !checkIn) return null;
+  try {
+    const url = PMS_BASE + "/api/pricing?propertyCode=" + encodeURIComponent(propertyCode) +
+      "&checkIn=" + encodeURIComponent(checkIn);
+    const res = await fetchWithRetry(url);
+    if (!res.ok) throw new Error("pricing " + res.status);
+    const data = await res.json();
+    const byRoom = {};
+    const list = Array.isArray(data) ? data : (data.rooms || data.rates || []);
+    (list || []).forEach((item) => {
+      if (!item) return;
+      const name = item.roomName || item.name;
+      if (!name) return;
+      const entry = {};
+      const bed = numRate(item.bedRate != null ? item.bedRate : item.dormRate);
+      const single = numRate(item.singleRate != null ? item.singleRate : item.single);
+      const dbl = numRate(item.doubleRate != null ? item.doubleRate : item.double);
+      if (bed != null) entry.bed = bed;
+      if (single != null) entry.single = single;
+      if (dbl != null) entry.double = dbl;
+      byRoom[name] = entry;
+    });
+    return byRoom;
+  } catch (e) {
+    console.warn("PMS pricing fetch failed:", e.message);
+    return null;
+  }
+}
+
+function numRate(v) {
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 /* Assigns each unit to a PMS category code using live availability.
    The PMS `POST /api/bookings` expects `roomCategory` to be a category code
    (e.g. "female-dorm") not a physical room name like "Arbaminch" -- sending
@@ -160,4 +199,4 @@ async function createPmsBookings({ propertyCode, category, roomNames, categoryCo
   return { booked, failed: units - booked.length };
 }
 
-module.exports = { createPmsBookings, getRoomInfo, PROPERTY_CODES, PMS_BASE };
+module.exports = { createPmsBookings, getRoomInfo, fetchPricing, PROPERTY_CODES, PMS_BASE };
